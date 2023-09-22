@@ -18,7 +18,7 @@ object FrmHybridEncryption: TFrmHybridEncryption
   object ShapeResult: TShape
     Left = 16
     Top = 728
-    Width = 978
+    Width = 974
     Height = 38
     Anchors = [akLeft, akRight, akBottom]
     Shape = stRoundRect
@@ -27,7 +27,7 @@ object FrmHybridEncryption: TFrmHybridEncryption
   object LabelAlgo: TLabel
     Left = 16
     Top = 24
-    Width = 117
+    Width = 119
     Height = 15
     Anchors = [akLeft, akTop, akRight]
     Caption = 'Symmetrical Algorithm'
@@ -43,7 +43,7 @@ object FrmHybridEncryption: TFrmHybridEncryption
   object LabelResult: TLabel
     Left = 39
     Top = 739
-    Width = 915
+    Width = 911
     Height = 20
     Alignment = taCenter
     Anchors = [akLeft, akRight, akBottom]
@@ -57,7 +57,7 @@ object FrmHybridEncryption: TFrmHybridEncryption
     ExplicitWidth = 927
   end
   object LabelSymKeySize: TLabel
-    Left = 881
+    Left = 877
     Top = 335
     Width = 105
     Height = 15
@@ -68,11 +68,11 @@ object FrmHybridEncryption: TFrmHybridEncryption
     ExplicitLeft = 893
   end
   object Label1: TLabel
-    Left = 483
+    Left = 472
     Top = 24
-    Width = 119
+    Width = 130
     Height = 15
-    Caption = 'Asymetrical Algorithm'
+    Caption = 'Asymmetrical Algorithm'
   end
   object LabelPublicKey: TLabel
     Left = 18
@@ -105,14 +105,14 @@ object FrmHybridEncryption: TFrmHybridEncryption
   object Label5: TLabel
     Left = 18
     Top = 577
-    Width = 109
+    Width = 111
     Height = 15
     Anchors = [akLeft, akTop, akRight]
     Caption = 'Encrypted session key'
     ExplicitWidth = 115
   end
   object LabelDecryptedSessionKeySize: TLabel
-    Left = 881
+    Left = 877
     Top = 576
     Width = 113
     Height = 15
@@ -139,12 +139,12 @@ object FrmHybridEncryption: TFrmHybridEncryption
   object EditSessionKey: TEdit
     Left = 152
     Top = 331
-    Width = 723
+    Width = 719
     Height = 23
     Anchors = [akLeft, akTop, akRight]
     ReadOnly = True
     TabOrder = 0
-    ExplicitWidth = 717
+    ExplicitWidth = 715
   end
   object btnEncrypt: TButton
     Left = 18
@@ -159,13 +159,13 @@ object FrmHybridEncryption: TFrmHybridEncryption
   object edtEncryptedPayload: TEdit
     Left = 18
     Top = 440
-    Width = 976
+    Width = 972
     Height = 23
     Anchors = [akLeft, akTop, akRight]
     ReadOnly = True
     TabOrder = 2
     Text = 'edtEncryptedPayload'
-    ExplicitWidth = 970
+    ExplicitWidth = 968
   end
   object btnDecrypt: TButton
     Left = 18
@@ -180,25 +180,25 @@ object FrmHybridEncryption: TFrmHybridEncryption
   object MemoClear: TMemo
     Left = 16
     Top = 208
-    Width = 978
+    Width = 974
     Height = 72
     Anchors = [akLeft, akTop, akRight]
     Lines.Strings = (
       'MemoClear')
     TabOrder = 4
-    ExplicitWidth = 972
+    ExplicitWidth = 970
   end
   object MemoResult: TMemo
     Left = 18
     Top = 626
-    Width = 976
+    Width = 972
     Height = 72
     Anchors = [akLeft, akTop, akRight]
     Lines.Strings = (
       'MemoResult')
     ReadOnly = True
     TabOrder = 5
-    ExplicitWidth = 970
+    ExplicitWidth = 968
   end
   object btnCreatePersonalKeys: TButton
     Left = 18
@@ -240,52 +240,52 @@ object FrmHybridEncryption: TFrmHybridEncryption
   object edtPublicKey: TEdit
     Left = 152
     Top = 120
-    Width = 842
+    Width = 838
     Height = 23
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 10
-    ExplicitWidth = 836
+    ExplicitWidth = 834
   end
   object edtPrivateKey: TEdit
     Left = 152
     Top = 147
-    Width = 842
+    Width = 838
     Height = 23
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 11
-    ExplicitWidth = 836
+    ExplicitWidth = 834
   end
   object edtEncryptedSessionKey: TEdit
     Left = 18
     Top = 390
-    Width = 976
+    Width = 972
     Height = 23
     Anchors = [akLeft, akTop, akRight]
     ReadOnly = True
     TabOrder = 12
     Text = 'edtEncryptedSessionKey'
-    ExplicitWidth = 970
+    ExplicitWidth = 968
   end
   object EditDecryptedSessionKey: TEdit
     Left = 152
     Top = 573
-    Width = 723
+    Width = 719
     Height = 23
     Anchors = [akLeft, akTop, akRight]
     ReadOnly = True
     TabOrder = 13
-    ExplicitWidth = 717
+    ExplicitWidth = 715
   end
   object edtUsedPublicKey: TEdit
     Left = 280
     Top = 360
-    Width = 714
+    Width = 710
     Height = 23
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 14
     Text = 'edtUsedPublicKey'
     StyleElements = [seFont, seBorder]
-    ExplicitWidth = 708
+    ExplicitWidth = 706
   end
   object btnSaveEncryptedMsg: TButton
     Left = 18

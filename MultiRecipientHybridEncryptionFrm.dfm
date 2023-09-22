@@ -20,16 +20,17 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
   object ShapeResult: TShape
     Left = 16
     Top = 643
-    Width = 974
+    Width = 970
     Height = 38
     Anchors = [akLeft, akRight, akBottom]
     Shape = stRoundRect
     ExplicitTop = 1375
+    ExplicitWidth = 974
   end
   object LabelAlgo: TLabel
     Left = 16
     Top = 24
-    Width = 107
+    Width = 119
     Height = 15
     Anchors = [akLeft, akTop, akRight]
     Caption = 'Symmetrical Algorithm'
@@ -38,7 +39,7 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
   object LabelResult: TLabel
     Left = 39
     Top = 652
-    Width = 899
+    Width = 895
     Height = 20
     Alignment = taCenter
     Anchors = [akLeft, akRight, akBottom]
@@ -52,11 +53,11 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
     ExplicitWidth = 915
   end
   object Label1: TLabel
-    Left = 483
+    Left = 472
     Top = 24
-    Width = 119
+    Width = 130
     Height = 15
-    Caption = 'Asymetrical Algorithm'
+    Caption = 'Asymmetrical Algorithm'
   end
   object cboSymAlgo: TComboBox
     Left = 152
@@ -112,15 +113,17 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
   object PageControl: TPageControl
     Left = 18
     Top = 65
-    Width = 972
+    Width = 968
     Height = 348
     ActivePage = tabKeys
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 3
+    ExplicitWidth = 964
+    ExplicitHeight = 347
     object tabKeys: TTabSheet
       Caption = 'Key Management'
       DesignSize = (
-        964
+        960
         318)
       object LabelPublicKey: TLabel
         Left = 19
@@ -144,7 +147,7 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
         Caption = 'Key name'
       end
       object lblKeysSize: TLabel
-        Left = 642
+        Left = 638
         Top = 120
         Width = 295
         Height = 15
@@ -194,7 +197,7 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
       object edtPublicKey: TEdit
         Left = 133
         Top = 61
-        Width = 812
+        Width = 808
         Height = 23
         Anchors = [akLeft, akTop, akRight]
         Font.Charset = DEFAULT_CHARSET
@@ -205,12 +208,12 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
         Font.Style = []
         ParentFont = False
         TabOrder = 4
-        ExplicitWidth = 822
+        ExplicitWidth = 804
       end
       object edtPrivateKey: TEdit
         Left = 133
         Top = 88
-        Width = 812
+        Width = 808
         Height = 23
         Anchors = [akLeft, akTop, akRight]
         Font.Charset = DEFAULT_CHARSET
@@ -221,7 +224,7 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
         Font.Style = []
         ParentFont = False
         TabOrder = 5
-        ExplicitWidth = 822
+        ExplicitWidth = 804
       end
       object edtKeyName: TEdit
         Left = 133
@@ -235,7 +238,7 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
       Caption = 'Message Encryption'
       ImageIndex = 1
       DesignSize = (
-        964
+        960
         318)
       object Label2: TLabel
         Left = 16
@@ -265,7 +268,7 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
       object LabelSymKeySize: TLabel
         Left = 853
         Top = 275
-        Width = 89
+        Width = 85
         Height = 15
         Alignment = taRightJustify
         Anchors = [akLeft, akRight, akBottom]
@@ -284,30 +287,25 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
         Enabled = False
         TabOrder = 0
         OnClick = btnEncryptClick
-        ExplicitTop = 246
       end
       object MemoClear: TMemo
         Left = 16
         Top = 33
-        Width = 929
+        Width = 925
         Height = 60
         Anchors = [akLeft, akTop, akRight, akBottom]
         Lines.Strings = (
           'MemoClear')
         TabOrder = 1
-        ExplicitWidth = 945
-        ExplicitHeight = 72
       end
       object lstRecipients: TListBox
         Left = 17
         Top = 126
-        Width = 929
+        Width = 925
         Height = 55
         Anchors = [akLeft, akRight, akBottom]
         ItemHeight = 15
         TabOrder = 2
-        ExplicitTop = 138
-        ExplicitWidth = 945
       end
       object btnAddRecipient: TButton
         Left = 231
@@ -318,12 +316,11 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
         Caption = 'Add Recipient from Public Key File'
         TabOrder = 3
         OnClick = btnAddRecipientClick
-        ExplicitTop = 199
       end
       object EditSessionKey: TEdit
         Left = 152
         Top = 271
-        Width = 679
+        Width = 675
         Height = 23
         Anchors = [akLeft, akRight, akBottom]
         Font.Charset = DEFAULT_CHARSET
@@ -335,8 +332,6 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
         ParentFont = False
         ReadOnly = True
         TabOrder = 4
-        ExplicitTop = 283
-        ExplicitWidth = 695
       end
       object btnClearRecipients: TButton
         Left = 445
@@ -347,7 +342,6 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
         Caption = 'Clear Recipients'
         TabOrder = 5
         OnClick = btnClearRecipientsClick
-        ExplicitTop = 199
       end
       object btnAddCreatedKeyAsRecipient: TButton
         Left = 16
@@ -363,12 +357,12 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
       Caption = 'Message Decryption'
       ImageIndex = 2
       DesignSize = (
-        964
+        960
         318)
       object Label5: TLabel
         Left = 17
         Top = 190
-        Width = 99
+        Width = 111
         Height = 15
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Encrypted session key'
@@ -382,7 +376,7 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
         Caption = 'Clear text as decryption output result'
       end
       object LabelDecryptedSessionKeySize: TLabel
-        Left = 836
+        Left = 832
         Top = 190
         Width = 113
         Height = 15
@@ -442,7 +436,7 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
       object EditDecryptedSessionKey: TEdit
         Left = 159
         Top = 187
-        Width = 671
+        Width = 667
         Height = 23
         Anchors = [akLeft, akTop, akRight]
         Font.Charset = DEFAULT_CHARSET
@@ -454,23 +448,20 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
         ParentFont = False
         ReadOnly = True
         TabOrder = 1
-        ExplicitWidth = 687
       end
       object MemoResult: TMemo
         Left = 17
         Top = 242
-        Width = 925
+        Width = 921
         Height = 60
         Anchors = [akLeft, akTop, akRight, akBottom]
         ReadOnly = True
         TabOrder = 2
-        ExplicitWidth = 941
-        ExplicitHeight = 72
       end
       object edtPersonalPrivateKey: TEdit
         Left = 130
         Top = 82
-        Width = 812
+        Width = 808
         Height = 23
         Anchors = [akLeft, akTop, akRight]
         Font.Charset = DEFAULT_CHARSET
@@ -481,7 +472,6 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
         Font.Style = []
         ParentFont = False
         TabOrder = 3
-        ExplicitWidth = 828
       end
       object edtPersonalName: TEdit
         Left = 130
@@ -502,7 +492,7 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
       object edtPersonalPublicKey: TEdit
         Left = 130
         Top = 53
-        Width = 812
+        Width = 808
         Height = 23
         Anchors = [akLeft, akTop, akRight]
         Font.Charset = DEFAULT_CHARSET
@@ -513,7 +503,6 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
         Font.Style = []
         ParentFont = False
         TabOrder = 6
-        ExplicitWidth = 828
       end
       object btnLoadCreatedKeys: TButton
         Left = 16
@@ -545,13 +534,15 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
   object gpbEncryptedMessage: TGroupBox
     Left = 18
     Top = 419
-    Width = 972
+    Width = 968
     Height = 206
     Anchors = [akLeft, akRight, akBottom]
     Caption = 'Encrypted Message'
     TabOrder = 5
+    ExplicitTop = 418
+    ExplicitWidth = 964
     DesignSize = (
-      972
+      968
       206)
     object Label3: TLabel
       Left = 14
@@ -568,7 +559,7 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
       Caption = 'Public key with encrypted session keys for all recipients'
     end
     object lblHeaderSize: TLabel
-      Left = 621
+      Left = 617
       Top = 26
       Width = 331
       Height = 15
@@ -576,9 +567,10 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
       Anchors = [akTop, akRight]
       AutoSize = False
       Caption = 'Header Size [bytes]'
+      ExplicitLeft = 621
     end
     object lblPayloadSize: TLabel
-      Left = 621
+      Left = 617
       Top = 108
       Width = 335
       Height = 15
@@ -586,6 +578,7 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
       Anchors = [akTop, akRight]
       AutoSize = False
       Caption = 'Payload size [bytes]'
+      ExplicitLeft = 621
     end
     object btnLoadEncryptedMessage: TButton
       Left = 222
@@ -608,7 +601,7 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
     object edtEncryptedPayload: TEdit
       Left = 14
       Top = 129
-      Width = 942
+      Width = 938
       Height = 23
       Anchors = [akLeft, akTop, akRight]
       Font.Charset = DEFAULT_CHARSET
@@ -621,11 +614,12 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
       ReadOnly = True
       TabOrder = 2
       Text = 'edtEncryptedPayload'
+      ExplicitWidth = 934
     end
     object lstHeader: TListBox
       Left = 14
       Top = 47
-      Width = 942
+      Width = 938
       Height = 55
       Anchors = [akLeft, akTop, akRight]
       Font.Charset = DEFAULT_CHARSET
@@ -637,6 +631,7 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
       ItemHeight = 15
       ParentFont = False
       TabOrder = 3
+      ExplicitWidth = 934
     end
   end
   object SaveDialog: TSaveDialog
