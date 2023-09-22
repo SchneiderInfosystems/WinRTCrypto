@@ -369,6 +369,7 @@ begin
       sl.Free;
     end;
   end;
+  CheckActions;
 end;
 
 procedure TFrmMultiRecipientHybridEncryption.btnClearRecipientsClick(
