@@ -146,11 +146,18 @@ implementation
 {$R *.dfm}
 
 resourcestring
+{$IFDEF VER360}
+  rsTS = '''
+    This is a sample text for hybrid encryption based on symmetric algo %s and asymmetric algo %s.
+    The creation date and time of this test text is %s %s. Its built with Delphi 12!
+    It contains also unicode letters Ж•₱₲₳‡₾ to test UTF8 encoding.
+    ''';
+{$ELSE}
   rsTS =
     'This is a sample text for hybrid encryption based on symmetric algo %s and asymmetric algo %s.'#13#10 +
     'The creation date and time of this test text is %s %s.'#13#10 +
     'It contains also unicode letters Ж•₱₲₳‡₾ to test UTF8 encoding.';
-  rsDefaultKeyName = 'Myself';
+{$ENDIF}
   rsKeySize = 'Key size %d [bits]';
   rsPublicAndPrivateKeySize = 'Public key size %d / Private key size %d [bytes]';
   rsHeaderSize = '%d Recipient(s) in header, size %d [~bytes]';
@@ -263,7 +270,12 @@ begin
     edtPrivateKey.Text := EncodeAsBase64(PrivateKey);
     lblKeysSize.Caption := Format(rsPublicAndPrivateKeySize,
       [PublicKey.Length, PrivateKey.Length]);
-    edtKeyName.Text := rsDefaultKeyName;
+    if edtKeyName.Text = '' then
+      edtKeyName.Text := 'Myself'
+    else if edtKeyName.Text = 'Myself' then
+      edtKeyName.Text := 'Alice'
+    else if edtKeyName.Text = 'Alice' then
+      edtKeyName.Text := 'Bob';
     // Transfer automatically to decrypt tab
     btnLoadCreatedKeysClick(nil);
   end;
