@@ -1,7 +1,6 @@
 # WinRTCrypto
-Four simple applications written for Delphi give an introduction to Symmetric Encryption with AES, Aysmmetric Encryption with RSA and Hybrid Encryption as a combination of the two technologies. 
-All code based on pure Delphi using the WinApi.WinRT and Winapi.Security.Cryptography Library delivered since Delphi 10 Seattle. 
-No 3rd party library is required. 
+Four simple applications written for **Delphi** give an introduction to symmetric encryption with AES, asymmetric encryption with RSA and hybrid encryption as a combination of both encryption alorithms. 
+All code based on pure Delphi using the _WinApi.WinRT_ and _Winapi.Security.Cryptography_ library delivered since Delphi 10 Seattle. No additional 3rd party library are required. 
 This code runs on Windows only and therefore uses the VCL.
 
 # Introduction to asymmetric encryption with RSA algorithms
