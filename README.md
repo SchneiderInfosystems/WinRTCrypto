@@ -4,6 +4,8 @@ All code based on pure Delphi using the WinApi.WinRT and Winapi.Security.Cryptog
 No 3rd party library is required. 
 This code runs on Windows only and therefore uses the VCL.
 
+![MultiRecipientHybridEncryption App in Action](https://github.com/SchneiderInfosystems/WinRTCrypto/MultiRecipientHybridEncryptionApp.png)
+
 The sample projects are developed and prepared for Delphi 11.3 Alexandria.
 
 Delphi is a registered trademark of Embarcadero Technologies, Inc.
