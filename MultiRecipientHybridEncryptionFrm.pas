@@ -95,10 +95,13 @@ type
     lblKeysSize: TLabel;
     cboAsymKeySize: TComboBox;
     lblHintPublicKeyMissingInHeader: TLabel;
+    btnAddCreatedKeyAsRecipient: TButton;
+    gpbEncryptedMessage: TGroupBox;
+    btnLoadCreatedKeys: TButton;
     procedure btnEncryptClick(Sender: TObject);
     procedure btnDecryptClick(Sender: TObject);
     procedure btnCreatePersonalKeysClick(Sender: TObject);
-    procedure ComboBoxAlgosChange(Sender: TObject);
+    procedure cboAlgosChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure btnSavePersonalKeysClick(Sender: TObject);
     procedure btnLoadKeysClick(Sender: TObject);
@@ -109,6 +112,8 @@ type
     procedure btnClearRecipientsClick(Sender: TObject);
     procedure btnLoadPersonalKeyClick(Sender: TObject);
     procedure CheckKeySizes(Sender: TObject);
+    procedure btnAddCreatedKeyAsRecipientClick(Sender: TObject);
+    procedure btnLoadCreatedKeysClick(Sender: TObject);
   private
     function SelectedAsymAlgo: Core_IAsymmetricKeyAlgorithmProvider;
     function SelectAsymKeySizeInBits: integer;
@@ -153,72 +158,20 @@ resourcestring
 
 { TFrmHybridEncryption }
 
+{$REGION 'GUI Handling'}
 procedure TFrmMultiRecipientHybridEncryption.FormCreate(Sender: TObject);
 begin
   lstHeader.Clear;
   edtEncryptedPayload.Text := '';
   ClearResult;
-  ComboBoxAlgosChange(nil);
+  cboAlgosChange(nil);
   CheckActions;
 end;
 
-function TFrmMultiRecipientHybridEncryption.DataFolder: string;
+procedure TFrmMultiRecipientHybridEncryption.cboAlgosChange(Sender: TObject);
 begin
-  result := ExpandFileName(ExtractFileDir(Application.ExeName) + '\..\..\Data\');
-  if not DirectoryExists(result, false) then
-    ForceDirectories(result);
-end;
-
-procedure TFrmMultiRecipientHybridEncryption.ComboBoxAlgosChange(Sender: TObject);
-begin
-  MemoClear.Text := Format(rsTS, [cboSymAlgo.Text, cboAsymAlgo.Text, DateToStr(now), TimeToStr(Now)]);
-end;
-
-function TFrmMultiRecipientHybridEncryption.SelectedAsymAlgo: Core_IAsymmetricKeyAlgorithmProvider;
-var
-  Algo: HString;
-begin
-  case cboAsymAlgo.ItemIndex of
-    0: Algo := TCore_AsymmetricAlgorithmNames.RsaPkcs1;
-    1: Algo := TCore_AsymmetricAlgorithmNames.RsaOaepSha1;
-    2: Algo := TCore_AsymmetricAlgorithmNames.RsaOaepSha256;
-    3: Algo := TCore_AsymmetricAlgorithmNames.RsaOaepSha384;
-    4: Algo := TCore_AsymmetricAlgorithmNames.RsaOaepSha512;
-    else
-      raise Exception.Create('Unknown Core_AsymmetricAlgorithmNames');
-  end;
-  result := TCore_AsymmetricKeyAlgorithmProvider.OpenAlgorithm(Algo);
-  cboAsymAlgo.Enabled := false;
-end;
-
-function TFrmMultiRecipientHybridEncryption.SelectAsymKeySizeInBits: integer;
-begin
-  result := StrToInt(cboAsymKeySize.Text);
-  cboAsymKeySize.Enabled := false;
-end;
-
-function TFrmMultiRecipientHybridEncryption.SelectedSymAlgo: Core_ISymmetricKeyAlgorithmProvider;
-var
-  Algo: HString;
-begin
-  case cboSymAlgo.ItemIndex of
-    0: Algo := TCore_SymmetricAlgorithmNames.AesCbc;
-    1: Algo := TCore_SymmetricAlgorithmNames.AesCbcPkcs7;
-    2: Algo := TCore_SymmetricAlgorithmNames.AesCcm;
-    3: Algo := TCore_SymmetricAlgorithmNames.AesEcb;
-    4: Algo := TCore_SymmetricAlgorithmNames.AesEcbPkcs7;
-    5: Algo := TCore_SymmetricAlgorithmNames.AesGcm;
-    else
-      raise Exception.Create('Unknown Core_SymmetricAlgorithmNames');
-  end;
-  result := TCore_SymmetricKeyAlgorithmProvider.OpenAlgorithm(Algo);
-  cboSymAlgo.Enabled := false;
-end;
-
-function TFrmMultiRecipientHybridEncryption.SelectSymKeySizeInBytes: integer;
-begin
-  result := StrToInt(cboSymKeySize.Text) div 8;
-  cboSymKeySize.Enabled := false;
+  MemoClear.Text :=
+    Format(rsTS, [cboSymAlgo.Text, cboAsymAlgo.Text, DateToStr(now), TimeToStr(Now)]);
 end;
 
 procedure TFrmMultiRecipientHybridEncryption.CheckKeySizes(Sender: TObject);
@@ -230,6 +183,45 @@ begin
     ClearResult;
 end;
 
+procedure TFrmMultiRecipientHybridEncryption.CheckActions;
+var
+  IsClearTextDefined: boolean;
+  IsPublicKeyDefined: boolean;
+  IsPrivateKeyDefined: boolean;
+  IsNameDefined: boolean;
+  IsPersonalPublicKeyDefined: boolean;
+  IsPersonalPrivateKeyDefined: boolean;
+  IsPublicKeyInHeader: boolean;
+  IsPayloaded: boolean;
+  AreRecipientsDefined: boolean;
+  AreHeaderItemsPresent: boolean;
+begin
+  IsClearTextDefined := length(MemoClear.Text) > 0;
+  IsPublicKeyDefined := length(edtPublicKey.Text) > 0;
+  IsPrivateKeyDefined := length(edtPrivateKey.Text) > 0;
+  IsPersonalPublicKeyDefined := length(edtPersonalPublicKey.Text) > 0;
+  IsPersonalPrivateKeyDefined := length(edtPersonalPrivateKey.Text) > 0;
+  IsPublicKeyInHeader := not SearchEncryptedSessionKeyByPublicKeyInHeaders(
+    edtPersonalPublicKey.Text).IsEmpty;
+  IsNameDefined := length(edtKeyName.Text) > 0;
+  IsPayloaded := length(edtEncryptedPayload.Text) > 0;
+  AreRecipientsDefined := lstRecipients.Count > 0;
+  AreHeaderItemsPresent := lstHeader.Count > 0;
+  // Enable/disable button states
+  btnAddCreatedKeyAsRecipient.Enabled := IsPublicKeyDefined and IsNameDefined;
+  btnAddCreatedKeyAsRecipient.Enabled := IsPublicKeyDefined and IsNameDefined;
+  btnLoadCreatedKeys.Enabled :=
+    IsPublicKeyDefined and IsNameDefined and IsPrivateKeyDefined;
+  btnSavePersonalKeys.Enabled := IsPublicKeyDefined;
+  btnEncrypt.Enabled := AreRecipientsDefined and IsClearTextDefined;
+  btnDecrypt.Enabled :=
+    IsPersonalPrivateKeyDefined and IsPublicKeyInHeader and IsPayloaded;
+  lblHintPublicKeyMissingInHeader.Visible := IsPersonalPublicKeyDefined and
+    AreHeaderItemsPresent and not IsPublicKeyInHeader;
+end;
+{$ENDREGION}
+
+{$REGION 'Result Panel'}
 procedure TFrmMultiRecipientHybridEncryption.ShowError(const Msg: string);
 begin
   ShapeResult.Brush.Color := clRed;
@@ -248,35 +240,9 @@ begin
   ShapeResult.Brush.Color := clBtnFace;
   LabelResult.Caption := '';
 end;
+{$ENDREGION}
 
-procedure TFrmMultiRecipientHybridEncryption.btnAddRecipientClick(
-  Sender: TObject);
-var
-  sl: TStringList;
-  Name: string;
-begin
-  OpenDialogPublicKey.InitialDir := DataFolder;
-  if OpenDialogPublicKey.Execute(Handle) then
-  begin
-    Name := ChangeFileExt(ExtractFileName(OpenDialogPublicKey.FileName), '');
-    sl := TStringList.Create;
-    try
-      sl.LoadFromFile(OpenDialogPublicKey.FileName);
-      lstRecipients.AddItem(Name + ':' + trim(sl.Text), nil);
-    finally
-      sl.Free;
-    end;
-    CheckActions;
-  end;
-end;
-
-procedure TFrmMultiRecipientHybridEncryption.btnClearRecipientsClick(
-  Sender: TObject);
-begin
-  lstRecipients.Clear;
-  CheckActions;
-end;
-
+{$REGION 'Key Management'}
 procedure TFrmMultiRecipientHybridEncryption.btnCreatePersonalKeysClick(Sender: TObject);
 var
   PersonalKey: Core_ICryptographicKey;
@@ -298,10 +264,8 @@ begin
     lblKeysSize.Caption := Format(rsPublicAndPrivateKeySize,
       [PublicKey.Length, PrivateKey.Length]);
     edtKeyName.Text := rsDefaultKeyName;
-    // Transfer to decrypt
-    edtPersonalPublicKey.Text := edtPublicKey.Text;
-    edtPersonalPrivateKey.Text := edtPrivateKey.Text;
-    edtPersonalName.Text := edtKeyName.Text;
+    // Transfer automatically to decrypt tab
+    btnLoadCreatedKeysClick(nil);
   end;
   CheckActions;
 end;
@@ -322,32 +286,6 @@ begin
     finally
       sl.Free;
     end;
-  end;
-end;
-
-procedure TFrmMultiRecipientHybridEncryption.btnLoadPersonalKeyClick(Sender: TObject);
-var
-  sl: TStringList;
-  PersonalKey: Core_ICryptographicKey;
-begin
-  OpenDialogPrivateKey.InitialDir := DataFolder;
-  if OpenDialogPrivateKey.Execute(Handle) then
-  begin
-    sl := TStringList.Create;
-    try
-      sl.LoadFromFile(OpenDialogPrivateKey.FileName);
-      edtPersonalPrivateKey.Text := trim(sl.Text);
-      PersonalKey := ImportPrivateKey(edtPersonalPrivateKey.Text);
-      if assigned(PersonalKey) then
-      begin
-        edtPersonalPublicKey.Text := EncodeAsBase64(PersonalKey.ExportPublicKey);
-        edtPersonalName.Text :=
-          ChangeFileExt(ExtractFileName(OpenDialogPrivateKey.FileName), '');
-      end;
-    finally
-      sl.Free;
-    end;
-    CheckActions;
   end;
 end;
 
@@ -403,46 +341,41 @@ begin
     CheckActions;
   end;
 end;
+{$ENDREGION}
 
-procedure TFrmMultiRecipientHybridEncryption.CheckActions;
+{$REGION 'Message Encryption'}
+procedure TFrmMultiRecipientHybridEncryption.btnAddCreatedKeyAsRecipientClick(
+  Sender: TObject);
+begin
+  lstRecipients.AddItem(edtKeyName.Text + ':' + edtPublicKey.Text, nil);
+  CheckActions;
+end;
+
+procedure TFrmMultiRecipientHybridEncryption.btnAddRecipientClick(
+  Sender: TObject);
 var
-  IsPublicKeyExists: boolean;
-  IsPersonalPublicKeyExists: boolean;
-  IsPublicKeyInHeader: boolean;
+  sl: TStringList;
+  Name: string;
 begin
-  IsPublicKeyExists := length(edtPublicKey.Text) > 0;
-  IsPersonalPublicKeyExists := length(edtPersonalPublicKey.Text) > 0;
-  IsPublicKeyInHeader := not SearchEncryptedSessionKeyByPublicKeyInHeaders(
-    edtPersonalPublicKey.Text).IsEmpty;
-  btnSavePersonalKeys.Enabled := IsPublicKeyExists;
-  btnEncrypt.Enabled := (lstRecipients.Count > 0) and (length(MemoClear.Text) > 0);
-  btnDecrypt.Enabled := (length(edtPersonalPrivateKey.Text) > 0) and
-    IsPublicKeyInHeader and (length(edtEncryptedPayload.Text) > 0);
-  lblHintPublicKeyMissingInHeader.Visible := IsPersonalPublicKeyExists and
-    (lstHeader.Count > 0) and not IsPublicKeyInHeader;
-end;
-
-function TFrmMultiRecipientHybridEncryption.ImportPrivateKey(const PrivateKeyAsBase64: string): Core_ICryptographicKey;
-begin
-  result := nil;
-  try
-    result := SelectedAsymAlgo.ImportKeyPair(DecodeFromBase64(PrivateKeyAsBase64),
-      Core_CryptographicPrivateKeyBlobType.Pkcs8RawPrivateKeyInfo);
-  except
-    on e: exception do
-      ShowError('Import private key failed: ' + e.Message);
+  OpenDialogPublicKey.InitialDir := DataFolder;
+  if OpenDialogPublicKey.Execute(Handle) then
+  begin
+    Name := ChangeFileExt(ExtractFileName(OpenDialogPublicKey.FileName), '');
+    sl := TStringList.Create;
+    try
+      sl.LoadFromFile(OpenDialogPublicKey.FileName);
+      lstRecipients.AddItem(Name + ':' + trim(sl.Text), nil);
+    finally
+      sl.Free;
+    end;
   end;
 end;
 
-function TFrmMultiRecipientHybridEncryption.ImportPublicKey(const PublicKeyAsBase64: string): Core_ICryptographicKey;
+procedure TFrmMultiRecipientHybridEncryption.btnClearRecipientsClick(
+  Sender: TObject);
 begin
-  result := nil;
-  try
-    result := SelectedAsymAlgo.ImportPublicKey(DecodeFromBase64(PublicKeyAsBase64));
-  except
-    on e: exception do
-      ShowError('Import public key failed: ' + e.Message);
-  end;
+  lstRecipients.Clear;
+  CheckActions;
 end;
 
 procedure TFrmMultiRecipientHybridEncryption.btnEncryptClick(Sender: TObject);
@@ -458,7 +391,8 @@ begin
   lstHeader.Clear;
   SessionKey := TCryptographicBuffer.GenerateRandom(SelectSymKeySizeInBytes);
   EditSessionKey.Text := EncodeAsBase64(SessionKey);
-  LabelSymKeySize.Caption := Format(rsKeySize, [SelectedSymAlgo.CreateSymmetricKey(SessionKey).KeySize]);
+  LabelSymKeySize.Caption :=
+    Format(rsKeySize, [SelectedSymAlgo.CreateSymmetricKey(SessionKey).KeySize]);
   for Recipient in lstRecipients.Items do
   begin
     RecipientNameAndKey := SplitString(Recipient, ':');
@@ -483,6 +417,44 @@ begin
   CalcMessageSize;
   CheckActions;
 end;
+{$ENDREGION}
+
+{$REGION 'Message Decryption'}
+procedure TFrmMultiRecipientHybridEncryption.btnLoadCreatedKeysClick(
+  Sender: TObject);
+begin
+  // Load from key management tab
+  edtPersonalPublicKey.Text := edtPublicKey.Text;
+  edtPersonalPrivateKey.Text := edtPrivateKey.Text;
+  edtPersonalName.Text := edtKeyName.Text;
+  CheckActions;
+end;
+
+procedure TFrmMultiRecipientHybridEncryption.btnLoadPersonalKeyClick(Sender: TObject);
+var
+  sl: TStringList;
+  PersonalKey: Core_ICryptographicKey;
+begin
+  OpenDialogPrivateKey.InitialDir := DataFolder;
+  if OpenDialogPrivateKey.Execute(Handle) then
+  begin
+    sl := TStringList.Create;
+    try
+      sl.LoadFromFile(OpenDialogPrivateKey.FileName);
+      edtPersonalPrivateKey.Text := trim(sl.Text);
+      PersonalKey := ImportPrivateKey(edtPersonalPrivateKey.Text);
+      if assigned(PersonalKey) then
+      begin
+        edtPersonalPublicKey.Text := EncodeAsBase64(PersonalKey.ExportPublicKey);
+        edtPersonalName.Text :=
+          ChangeFileExt(ExtractFileName(OpenDialogPrivateKey.FileName), '');
+      end;
+    finally
+      sl.Free;
+    end;
+    CheckActions;
+  end;
+end;
 
 procedure TFrmMultiRecipientHybridEncryption.btnDecryptClick(Sender: TObject);
 var
@@ -492,9 +464,10 @@ var
   ClearText: IBuffer;
 begin
   ClearResult;
-  EncryptedSessionKey := SearchEncryptedSessionKeyByPublicKeyInHeaders(edtPersonalPublicKey.Text);
+  EncryptedSessionKey :=
+    SearchEncryptedSessionKeyByPublicKeyInHeaders(edtPersonalPublicKey.Text);
   if EncryptedSessionKey.IsEmpty then
-    ShowError('This message is not encrypted for my public key')
+    ShowError('This message is not encrypted for given public key')
   else begin
     PrivateKey := ImportPrivateKey(edtPersonalPrivateKey.Text);
     if assigned(PrivateKey) then
@@ -503,12 +476,62 @@ begin
       if assigned(SessionKey) then
       begin
         EditDecryptedSessionKey.Text := EncodeAsBase64(SessionKey);
-        LabelDecryptedSessionKeySize.Caption := Format(rsKeySize, [SelectedSymAlgo.CreateSymmetricKey(SessionKey).KeySize]);
-        ClearText := SymmetricDecrypt(SelectedSymAlgo, SessionKey, DecodeFromBase64(edtEncryptedPayload.Text));
+        LabelDecryptedSessionKeySize.Caption :=
+          Format(rsKeySize, [SelectedSymAlgo.CreateSymmetricKey(SessionKey).KeySize]);
+        ClearText := SymmetricDecrypt(SelectedSymAlgo, SessionKey,
+          DecodeFromBase64(edtEncryptedPayload.Text));
         if assigned(ClearText) then
           ShowResult(ClearText);
       end;
     end;
+  end;
+end;
+
+function TFrmMultiRecipientHybridEncryption.SearchEncryptedSessionKeyByPublicKeyInHeaders(
+  const PublicKey: string): string;
+var
+  c: integer;
+  header: string;
+  publicKeyAndEncyptedSessionKey: TStringDynArray;
+begin
+  result := '';
+  for c := 0 to pred(lstHeader.Items.Count) do
+  begin
+    header := lstHeader.Items[c];
+    publicKeyAndEncyptedSessionKey := SplitString(header, ':');
+    if length(publicKeyAndEncyptedSessionKey) <> 2 then
+      raise Exception.Create('Invalid header format');
+    if SameText(publicKeyAndEncyptedSessionKey[0], PublicKey) then
+    begin
+      lstHeader.ItemIndex := c;
+      exit(publicKeyAndEncyptedSessionKey[1]);
+    end;
+  end;
+  lstHeader.ItemIndex := -1;
+end;
+{$ENDREGION}
+
+{$REGION 'Crypt helpers'}
+function TFrmMultiRecipientHybridEncryption.ImportPrivateKey(const PrivateKeyAsBase64: string): Core_ICryptographicKey;
+begin
+  result := nil;
+  try
+    result := SelectedAsymAlgo.ImportKeyPair(DecodeFromBase64(PrivateKeyAsBase64),
+      Core_CryptographicPrivateKeyBlobType.Pkcs8RawPrivateKeyInfo);
+  except
+    on e: exception do
+      ShowError('Import private key failed: ' + e.Message);
+  end;
+end;
+
+function TFrmMultiRecipientHybridEncryption.ImportPublicKey(const PublicKeyAsBase64: string): Core_ICryptographicKey;
+begin
+  result := nil;
+  try
+    result := SelectedAsymAlgo.ImportPublicKey(DecodeFromBase64(PublicKeyAsBase64));
+  except
+    on e: exception do
+      ShowError('Import public key failed: ' + e.Message);
   end;
 end;
 
@@ -536,6 +559,31 @@ function TFrmMultiRecipientHybridEncryption.IBufferToStr(Buf: IBuffer): string;
 begin
   result := TCryptographicBuffer.ConvertBinaryToString(BinaryStringEncoding.Utf8, Buf).ToString;
 end;
+{$ENDREGION}
+
+{$REGION 'Asymmetric Encrypt/Decryption'}
+function TFrmMultiRecipientHybridEncryption.SelectedAsymAlgo: Core_IAsymmetricKeyAlgorithmProvider;
+var
+  Algo: HString;
+begin
+  case cboAsymAlgo.ItemIndex of
+    0: Algo := TCore_AsymmetricAlgorithmNames.RsaPkcs1;
+    1: Algo := TCore_AsymmetricAlgorithmNames.RsaOaepSha1;
+    2: Algo := TCore_AsymmetricAlgorithmNames.RsaOaepSha256;
+    3: Algo := TCore_AsymmetricAlgorithmNames.RsaOaepSha384;
+    4: Algo := TCore_AsymmetricAlgorithmNames.RsaOaepSha512;
+    else
+      raise Exception.Create('Unknown Core_AsymmetricAlgorithmNames');
+  end;
+  result := TCore_AsymmetricKeyAlgorithmProvider.OpenAlgorithm(Algo);
+  cboAsymAlgo.Enabled := false;
+end;
+
+function TFrmMultiRecipientHybridEncryption.SelectAsymKeySizeInBits: integer;
+begin
+  result := StrToInt(cboAsymKeySize.Text);
+  cboAsymKeySize.Enabled := false;
+end;
 
 function TFrmMultiRecipientHybridEncryption.AsymmetricEncrypt(PublicKey: Core_ICryptographicKey; SessionKey: IBuffer): IBuffer;
 begin
@@ -560,6 +608,32 @@ begin
     on e: exception do
       ShowError('Asymmetric decryption failed: ' + e.Message);
   end;
+end;
+{$ENDREGION}
+
+{$REGION 'Symmetric Encrypt/Decryption'}
+function TFrmMultiRecipientHybridEncryption.SelectedSymAlgo: Core_ISymmetricKeyAlgorithmProvider;
+var
+  Algo: HString;
+begin
+  case cboSymAlgo.ItemIndex of
+    0: Algo := TCore_SymmetricAlgorithmNames.AesCbc;
+    1: Algo := TCore_SymmetricAlgorithmNames.AesCbcPkcs7;
+    2: Algo := TCore_SymmetricAlgorithmNames.AesCcm;
+    3: Algo := TCore_SymmetricAlgorithmNames.AesEcb;
+    4: Algo := TCore_SymmetricAlgorithmNames.AesEcbPkcs7;
+    5: Algo := TCore_SymmetricAlgorithmNames.AesGcm;
+    else
+      raise Exception.Create('Unknown Core_SymmetricAlgorithmNames');
+  end;
+  result := TCore_SymmetricKeyAlgorithmProvider.OpenAlgorithm(Algo);
+  cboSymAlgo.Enabled := false;
+end;
+
+function TFrmMultiRecipientHybridEncryption.SelectSymKeySizeInBytes: integer;
+begin
+  result := StrToInt(cboSymKeySize.Text) div 8;
+  cboSymKeySize.Enabled := false;
 end;
 
 function TFrmMultiRecipientHybridEncryption.SymmetricEncrypt(AlgoProvider: Core_ISymmetricKeyAlgorithmProvider;
@@ -591,28 +665,14 @@ begin
       ShowError('Symmetric decryption failed: ' + e.Message);
   end;
 end;
+{$ENDREGION}
 
-function TFrmMultiRecipientHybridEncryption.SearchEncryptedSessionKeyByPublicKeyInHeaders(
-  const PublicKey: string): string;
-var
-  c: integer;
-  header: string;
-  publicKeyAndEncyptedSessionKey: TStringDynArray;
+{$REGION 'Encrypted Message Load/Save'}
+function TFrmMultiRecipientHybridEncryption.DataFolder: string;
 begin
-  result := '';
-  for c := 0 to pred(lstHeader.Items.Count) do
-  begin
-    header := lstHeader.Items[c];
-    publicKeyAndEncyptedSessionKey := SplitString(header, ':');
-    if length(publicKeyAndEncyptedSessionKey) <> 2 then
-      raise Exception.Create('Invalid header format');
-    if SameText(publicKeyAndEncyptedSessionKey[0], PublicKey) then
-    begin
-      lstHeader.ItemIndex := c;
-      exit(publicKeyAndEncyptedSessionKey[1]);
-    end;
-  end;
-  lstHeader.ItemIndex := -1;
+  result := ExpandFileName(ExtractFileDir(Application.ExeName) + '\..\..\Data\');
+  if not DirectoryExists(result, false) then
+    ForceDirectories(result);
 end;
 
 procedure TFrmMultiRecipientHybridEncryption.btnSaveEncryptedMsgClick(Sender: TObject);
@@ -668,5 +728,6 @@ begin
   lblPayloadSize.Caption :=
     Format(rsPayloadSize, [DecodeFromBase64(edtEncryptedPayload.Text).Length]);
 end;
+{$ENDREGION}
 
 end.
