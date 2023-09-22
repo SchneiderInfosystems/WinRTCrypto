@@ -1,0 +1,72 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{71EFE154-7306-4404-9B19-2F409B6EAD44}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="AsymmetricEncryption.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="SymmetricEncryption.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="HybridEncryption.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="MultiRecipientHybridEncryption.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="AsymmetricEncryption">
+        <MSBuild Projects="AsymmetricEncryption.dproj"/>
+    </Target>
+    <Target Name="AsymmetricEncryption:Clean">
+        <MSBuild Projects="AsymmetricEncryption.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="AsymmetricEncryption:Make">
+        <MSBuild Projects="AsymmetricEncryption.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="SymmetricEncryption">
+        <MSBuild Projects="SymmetricEncryption.dproj"/>
+    </Target>
+    <Target Name="SymmetricEncryption:Clean">
+        <MSBuild Projects="SymmetricEncryption.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="SymmetricEncryption:Make">
+        <MSBuild Projects="SymmetricEncryption.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="HybridEncryption">
+        <MSBuild Projects="HybridEncryption.dproj"/>
+    </Target>
+    <Target Name="HybridEncryption:Clean">
+        <MSBuild Projects="HybridEncryption.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="HybridEncryption:Make">
+        <MSBuild Projects="HybridEncryption.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="MultiRecipientHybridEncryption">
+        <MSBuild Projects="MultiRecipientHybridEncryption.dproj"/>
+    </Target>
+    <Target Name="MultiRecipientHybridEncryption:Clean">
+        <MSBuild Projects="MultiRecipientHybridEncryption.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="MultiRecipientHybridEncryption:Make">
+        <MSBuild Projects="MultiRecipientHybridEncryption.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="AsymmetricEncryption;SymmetricEncryption;HybridEncryption;MultiRecipientHybridEncryption"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="AsymmetricEncryption:Clean;SymmetricEncryption:Clean;HybridEncryption:Clean;MultiRecipientHybridEncryption:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="AsymmetricEncryption:Make;SymmetricEncryption:Make;HybridEncryption:Make;MultiRecipientHybridEncryption:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
