@@ -25,7 +25,8 @@ program HybridEncryption;
 
 uses
   Vcl.Forms,
-  HybridEncryptionFrm in 'HybridEncryptionFrm.pas' {FrmHybridEncryption};
+  HybridEncryptionFrm in 'HybridEncryptionFrm.pas' {FrmHybridEncryption},
+  Winapi.Security.Helpers in 'Winapi.Security.Helpers.pas';
 
 {$R *.res}
 

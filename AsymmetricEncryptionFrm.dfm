@@ -76,7 +76,6 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 0
     TextHint = 'Clear text'
-    ExplicitWidth = 559
   end
   object btnEncrypt: TButton
     Left = 24
@@ -95,7 +94,6 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     Height = 23
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 2
-    ExplicitWidth = 559
   end
   object btnDecrypt: TButton
     Left = 24
@@ -124,7 +122,6 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
       'RsaOaepSha256'
       'RsaOaepSha384'
       'RsaOaepSha512')
-    ExplicitWidth = 471
   end
   object EditResult: TEdit
     Left = 24
@@ -135,7 +132,6 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     ReadOnly = True
     TabOrder = 5
     TextHint = 'resulting clear text'
-    ExplicitWidth = 565
   end
   object btnCreateKeys: TButton
     Left = 24
@@ -154,7 +150,6 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     Anchors = [akLeft, akTop, akRight]
     ReadOnly = True
     TabOrder = 7
-    ExplicitWidth = 463
   end
   object EditKeySize: TEdit
     Left = 240
@@ -171,7 +166,6 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     Height = 23
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 9
-    ExplicitWidth = 463
   end
   object btnSaveKeys: TButton
     Left = 359
@@ -183,7 +177,6 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     Enabled = False
     TabOrder = 10
     OnClick = btnSaveKeysClick
-    ExplicitLeft = 353
   end
   object btnSaveEncrypt: TButton
     Left = 439
@@ -195,9 +188,8 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     Enabled = False
     TabOrder = 11
     OnClick = btnSaveEncryptClick
-    ExplicitLeft = 433
   end
-  object btnLoad: TButton
+  object btnLoadEncrypt: TButton
     Left = 520
     Top = 216
     Width = 75
@@ -206,8 +198,7 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     Caption = 'Load'
     Enabled = False
     TabOrder = 12
-    OnClick = btnLoadClick
-    ExplicitLeft = 514
+    OnClick = btnLoadEncryptClick
   end
   object btnLoadKeys: TButton
     Left = 433
@@ -218,7 +209,6 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     Caption = 'Load Keys'
     TabOrder = 13
     OnClick = btnLoadKeysClick
-    ExplicitLeft = 427
   end
   object btnLoadPubKey: TButton
     Left = 520
@@ -229,6 +219,5 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     Caption = 'Load Public'
     TabOrder = 14
     OnClick = btnLoadPubKeyClick
-    ExplicitLeft = 514
   end
 end

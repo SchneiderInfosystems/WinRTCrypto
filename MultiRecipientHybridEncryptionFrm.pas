@@ -98,6 +98,8 @@ type
     btnAddCreatedKeyAsRecipient: TButton;
     gpbEncryptedMessage: TGroupBox;
     btnLoadCreatedKeys: TButton;
+    LabelIV: TLabel;
+    edtIV: TEdit;
     procedure btnEncryptClick(Sender: TObject);
     procedure btnDecryptClick(Sender: TObject);
     procedure btnCreatePersonalKeysClick(Sender: TObject);
@@ -119,10 +121,13 @@ type
     function SelectAsymKeySizeInBits: integer;
     function SelectedSymAlgo: Core_ISymmetricKeyAlgorithmProvider;
     function SelectSymKeySizeInBytes: integer;
+    function SelectSymAlgoRequiresIV: boolean;
+    function SelectSymAlgoRequiresPadding: boolean;
     function DataFolder: string;
     procedure CheckActions;
     procedure ShowError(const Msg: string);
-    procedure ShowResult(ClearText: IBuffer);
+    procedure ShowWarning(const Msg: string);
+    procedure ShowResult(const Msg: string);
     procedure ClearResult;
     procedure CalcMessageSize;
     function SearchEncryptedSessionKeyByPublicKeyInHeaders(const PublicKey: string): string;
@@ -130,18 +135,17 @@ type
     function ImportPrivateKey(const PrivateKeyAsBase64: string): Core_ICryptographicKey;
     function AsymmetricEncrypt(PublicKey: Core_ICryptographicKey; SessionKey: IBuffer): IBuffer;
     function AsymmetricDecrypt(PrivatKey: Core_ICryptographicKey; Encrypted: IBuffer): IBuffer;
-    function SymmetricEncrypt(AlgoProvider: Core_ISymmetricKeyAlgorithmProvider; SessionKey, ClearText: IBuffer): IBuffer;
-    function SymmetricDecrypt(AlgoProvider: Core_ISymmetricKeyAlgorithmProvider; SessionKey, Encrypted: IBuffer): IBuffer;
-    function IBufferToStr(Buf: IBuffer): string;
-    function StrToIBuffer(Text: string): IBuffer;
-    function DecodeFromBase64(Base64: string): IBuffer;
-    function EncodeAsBase64(Buf: IBuffer): string;
+    function SymmetricEncrypt(SessionKey, ClearText, IV: IBuffer): IBuffer;
+    function SymmetricDecrypt(SessionKey, Encrypted, IV: IBuffer): IBuffer;
   end;
 
 var
   FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption;
 
 implementation
+
+uses
+  Winapi.Security.Helpers;
 
 {$R *.dfm}
 
@@ -235,11 +239,16 @@ begin
   LabelResult.Caption := Msg;
 end;
 
-procedure TFrmMultiRecipientHybridEncryption.ShowResult(ClearText: IBuffer);
+procedure TFrmMultiRecipientHybridEncryption.ShowWarning(const Msg: string);
 begin
-  MemoResult.Text := IBufferToStr(ClearText);
+  ShapeResult.Brush.Color := clYellow;
+  LabelResult.Caption := Msg;
+end;
+
+procedure TFrmMultiRecipientHybridEncryption.ShowResult(const Msg: string);
+begin
   ShapeResult.Brush.Color := clLime;
-  LabelResult.Caption := 'Decryption passed';
+  LabelResult.Caption := Msg;
 end;
 
 procedure TFrmMultiRecipientHybridEncryption.ClearResult;
@@ -266,8 +275,8 @@ begin
     PublicKey := PersonalKey.ExportPublicKey;
     PrivateKey := PersonalKey.Export(
       Core_CryptographicPrivateKeyBlobType.Pkcs8RawPrivateKeyInfo);
-    edtPublicKey.Text := EncodeAsBase64(PublicKey);
-    edtPrivateKey.Text := EncodeAsBase64(PrivateKey);
+    edtPublicKey.Text := TWinRTCryptoHelpers.EncodeAsBase64(PublicKey);
+    edtPrivateKey.Text := TWinRTCryptoHelpers.EncodeAsBase64(PrivateKey);
     lblKeysSize.Caption := Format(rsPublicAndPrivateKeySize,
       [PublicKey.Length, PrivateKey.Length]);
     if edtKeyName.Text = '' then
@@ -314,7 +323,7 @@ begin
     try
       sl.LoadFromFile(OpenDialogPrivateKey.FileName);
       edtPrivateKey.Text := trim(sl.Text);
-      PrivateKey := DecodeFromBase64(edtPrivateKey.Text);
+      PrivateKey := TWinRTCryptoHelpers.DecodeFromBase64(edtPrivateKey.Text);
     finally
       sl.Free;
     end;
@@ -324,7 +333,7 @@ begin
       PublicKey := PersonalKey.ExportPublicKey;
       lblKeysSize.Caption := Format(rsPublicAndPrivateKeySize,
         [PublicKey.Length, PrivateKey.Length]);
-      edtPublicKey.Text := EncodeAsBase64(PublicKey);
+      edtPublicKey.Text := TWinRTCryptoHelpers.EncodeAsBase64(PublicKey);
       edtKeyName.Text :=
         ChangeFileExt(ExtractFileName(OpenDialogPrivateKey.FileName), '');
     end;
@@ -398,12 +407,13 @@ var
   RecipientNameAndKey: TStringDynArray;
   PublicKeyAsStr: string;
   PublicKey: Core_ICryptographicKey;
+  ClearData, IV: IBuffer;
   EncryptedSessionKey: IBuffer;
   Payload: IBuffer;
 begin
   lstHeader.Clear;
   SessionKey := TCryptographicBuffer.GenerateRandom(SelectSymKeySizeInBytes);
-  EditSessionKey.Text := EncodeAsBase64(SessionKey);
+  EditSessionKey.Text := TWinRTCryptoHelpers.EncodeAsBase64(SessionKey);
   LabelSymKeySize.Caption :=
     Format(rsKeySize, [SelectedSymAlgo.CreateSymmetricKey(SessionKey).KeySize]);
   for Recipient in lstRecipients.Items do
@@ -418,13 +428,35 @@ begin
       EncryptedSessionKey := AsymmetricEncrypt(PublicKey, SessionKey);
       if not assigned(EncryptedSessionKey) then
         exit;
-      lstHeader.AddItem(PublicKeyAsStr + ':' + EncodeAsBase64(EncryptedSessionKey), nil);
+      lstHeader.AddItem(PublicKeyAsStr + ':' +
+        TWinRTCryptoHelpers.EncodeAsBase64(EncryptedSessionKey), nil);
     end;
   end;
-  Payload := SymmetricEncrypt(SelectedSymAlgo, SessionKey, StrToIBuffer(MemoClear.Text));
+  if SelectSymAlgoRequiresIV then
+    IV := TCryptographicBuffer.GenerateRandom(SelectedSymAlgo.BlockLength)
+  else
+    IV := nil;
+  edtIV.Text := TWinRTCryptoHelpers.EncodeAsBase64(IV);
+  ClearData := TWinRTCryptoHelpers.StrToIBuffer(MemoClear.Text);
+  if SelectSymAlgoRequiresPadding then
+  begin
+    // Ensure that the message length is a multiple of the block length.
+    // This is not necessary for PKCS #7 algorithms which automatically pad the
+    // message to an appropriate length.
+    if ClearData.Length mod SelectedSymAlgo.BlockLength <> 0 then
+    begin
+      ShowWarning(
+        'Message length must be multiple of block length: Message padded now');
+      MemoClear.Text := MemoClear.Text + StringOfChar('_',
+        SelectedSymAlgo.BlockLength - ClearData.Length mod SelectedSymAlgo.BlockLength);
+      // A better solution would be to use a message length and a random pad
+      ClearData := TWinRTCryptoHelpers.StrToIBuffer(MemoClear.Text);
+    end;
+  end;
+  Payload := SymmetricEncrypt(SessionKey, ClearData, IV);
   if assigned(Payload) then
   begin
-    edtEncryptedPayload.Text := EncodeAsBase64(PayLoad);
+    edtEncryptedPayload.Text := TWinRTCryptoHelpers.EncodeAsBase64(PayLoad);
     ClearResult;
   end;
   CalcMessageSize;
@@ -458,7 +490,8 @@ begin
       PersonalKey := ImportPrivateKey(edtPersonalPrivateKey.Text);
       if assigned(PersonalKey) then
       begin
-        edtPersonalPublicKey.Text := EncodeAsBase64(PersonalKey.ExportPublicKey);
+        edtPersonalPublicKey.Text :=
+          TWinRTCryptoHelpers.EncodeAsBase64(PersonalKey.ExportPublicKey);
         edtPersonalName.Text :=
           ChangeFileExt(ExtractFileName(OpenDialogPrivateKey.FileName), '');
       end;
@@ -485,16 +518,27 @@ begin
     PrivateKey := ImportPrivateKey(edtPersonalPrivateKey.Text);
     if assigned(PrivateKey) then
     begin
-      SessionKey := AsymmetricDecrypt(PrivateKey, DecodeFromBase64(EncryptedSessionKey));
+      SessionKey := AsymmetricDecrypt(PrivateKey,
+        TWinRTCryptoHelpers.DecodeFromBase64(EncryptedSessionKey));
       if assigned(SessionKey) then
       begin
-        EditDecryptedSessionKey.Text := EncodeAsBase64(SessionKey);
-        LabelDecryptedSessionKeySize.Caption :=
-          Format(rsKeySize, [SelectedSymAlgo.CreateSymmetricKey(SessionKey).KeySize]);
-        ClearText := SymmetricDecrypt(SelectedSymAlgo, SessionKey,
-          DecodeFromBase64(edtEncryptedPayload.Text));
+        EditDecryptedSessionKey.Text :=
+          TWinRTCryptoHelpers.EncodeAsBase64(SessionKey);
+        LabelDecryptedSessionKeySize.Caption := Format(rsKeySize,
+            [SelectedSymAlgo.CreateSymmetricKey(SessionKey).KeySize]);
+        ClearText := SymmetricDecrypt(SessionKey,
+          TWinRTCryptoHelpers.DecodeFromBase64(edtEncryptedPayload.Text),
+          TWinRTCryptoHelpers.DecodeFromBase64(edtIV.Text));
         if assigned(ClearText) then
-          ShowResult(ClearText);
+        begin
+          MemoResult.Text := TWinRTCryptoHelpers.IBufferToStr(ClearText);
+          if SameText(MemoClear.Text, MemoResult.Text) then
+            ShowResult(
+              'Passed: Resulting clear text is identical to starting clear text')
+          else
+            ShowWarning(
+              'Failed: Resulting clear text different than starting clear text');
+        end;
       end;
     end;
   end;
@@ -524,12 +568,14 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION 'Crypt helpers'}
-function TFrmMultiRecipientHybridEncryption.ImportPrivateKey(const PrivateKeyAsBase64: string): Core_ICryptographicKey;
+{$REGION 'Key Import'}
+function TFrmMultiRecipientHybridEncryption.ImportPrivateKey(
+  const PrivateKeyAsBase64: string): Core_ICryptographicKey;
 begin
   result := nil;
   try
-    result := SelectedAsymAlgo.ImportKeyPair(DecodeFromBase64(PrivateKeyAsBase64),
+    result := SelectedAsymAlgo.ImportKeyPair(
+      TWinRTCryptoHelpers.DecodeFromBase64(PrivateKeyAsBase64),
       Core_CryptographicPrivateKeyBlobType.Pkcs8RawPrivateKeyInfo);
   except
     on e: exception do
@@ -537,45 +583,23 @@ begin
   end;
 end;
 
-function TFrmMultiRecipientHybridEncryption.ImportPublicKey(const PublicKeyAsBase64: string): Core_ICryptographicKey;
+function TFrmMultiRecipientHybridEncryption.ImportPublicKey(
+  const PublicKeyAsBase64: string): Core_ICryptographicKey;
 begin
   result := nil;
   try
-    result := SelectedAsymAlgo.ImportPublicKey(DecodeFromBase64(PublicKeyAsBase64));
+    result := SelectedAsymAlgo.ImportPublicKey(
+      TWinRTCryptoHelpers.DecodeFromBase64(PublicKeyAsBase64));
   except
     on e: exception do
       ShowError('Import public key failed: ' + e.Message);
   end;
 end;
-
-function TFrmMultiRecipientHybridEncryption.EncodeAsBase64(Buf: IBuffer): string;
-begin
-  result := TWindowsString.HStringToString(
-              TCryptographicBuffer.EncodeToBase64String(Buf));
-end;
-
-function TFrmMultiRecipientHybridEncryption.DecodeFromBase64(Base64: string): IBuffer;
-begin
-  result := TCryptographicBuffer.DecodeFromBase64String(
-    TWindowsString.Create(Base64));
-end;
-
-function TFrmMultiRecipientHybridEncryption.StrToIBuffer(Text: string): IBuffer;
-var
-  data: TBytes;
-begin
-  data := TEncoding.UTF8.GetBytes(Text);
-  result := TCryptographicBuffer.CreateFromByteArray(length(data), @data[0]);
-end;
-
-function TFrmMultiRecipientHybridEncryption.IBufferToStr(Buf: IBuffer): string;
-begin
-  result := TCryptographicBuffer.ConvertBinaryToString(BinaryStringEncoding.Utf8, Buf).ToString;
-end;
 {$ENDREGION}
 
 {$REGION 'Asymmetric Encrypt/Decryption'}
-function TFrmMultiRecipientHybridEncryption.SelectedAsymAlgo: Core_IAsymmetricKeyAlgorithmProvider;
+function TFrmMultiRecipientHybridEncryption.SelectedAsymAlgo:
+  Core_IAsymmetricKeyAlgorithmProvider;
 var
   Algo: HString;
 begin
@@ -598,7 +622,8 @@ begin
   cboAsymKeySize.Enabled := false;
 end;
 
-function TFrmMultiRecipientHybridEncryption.AsymmetricEncrypt(PublicKey: Core_ICryptographicKey; SessionKey: IBuffer): IBuffer;
+function TFrmMultiRecipientHybridEncryption.AsymmetricEncrypt(
+  PublicKey: Core_ICryptographicKey; SessionKey: IBuffer): IBuffer;
 begin
   result := nil;
   try
@@ -606,13 +631,15 @@ begin
   except
     on e: EOleException do
       if e.ErrorCode = E_INVALIDARG then
-        ShowError('Asymmetric encryption failed by invalid argument: Session key size must be smaller than recipient''s public key')
+        ShowError('Asymmetric encryption failed by invalid argument: ' +
+          'Session key size must be smaller than recipient''s public key')
       else
         ShowError('Asymmetric encryption failed: ' + e.Message);
   end;
 end;
 
-function TFrmMultiRecipientHybridEncryption.AsymmetricDecrypt(PrivatKey: Core_ICryptographicKey; Encrypted: IBuffer): IBuffer;
+function TFrmMultiRecipientHybridEncryption.AsymmetricDecrypt(
+  PrivatKey: Core_ICryptographicKey; Encrypted: IBuffer): IBuffer;
 begin
   result := nil;
   try
@@ -625,17 +652,16 @@ end;
 {$ENDREGION}
 
 {$REGION 'Symmetric Encrypt/Decryption'}
-function TFrmMultiRecipientHybridEncryption.SelectedSymAlgo: Core_ISymmetricKeyAlgorithmProvider;
+function TFrmMultiRecipientHybridEncryption.SelectedSymAlgo:
+  Core_ISymmetricKeyAlgorithmProvider;
 var
   Algo: HString;
 begin
   case cboSymAlgo.ItemIndex of
     0: Algo := TCore_SymmetricAlgorithmNames.AesCbc;
     1: Algo := TCore_SymmetricAlgorithmNames.AesCbcPkcs7;
-    2: Algo := TCore_SymmetricAlgorithmNames.AesCcm;
-    3: Algo := TCore_SymmetricAlgorithmNames.AesEcb;
-    4: Algo := TCore_SymmetricAlgorithmNames.AesEcbPkcs7;
-    5: Algo := TCore_SymmetricAlgorithmNames.AesGcm;
+    2: Algo := TCore_SymmetricAlgorithmNames.AesEcb;
+    3: Algo := TCore_SymmetricAlgorithmNames.AesEcbPkcs7;
     else
       raise Exception.Create('Unknown Core_SymmetricAlgorithmNames');
   end;
@@ -649,30 +675,40 @@ begin
   cboSymKeySize.Enabled := false;
 end;
 
-function TFrmMultiRecipientHybridEncryption.SymmetricEncrypt(AlgoProvider: Core_ISymmetricKeyAlgorithmProvider;
-  SessionKey, ClearText: IBuffer): IBuffer;
+function TFrmMultiRecipientHybridEncryption.SelectSymAlgoRequiresPadding: boolean;
+begin
+  result := cboSymAlgo.ItemIndex in [0, 2]; // Without PKCS #7
+end;
+
+function TFrmMultiRecipientHybridEncryption.SelectSymAlgoRequiresIV: boolean;
+begin
+  result := cboSymAlgo.ItemIndex in [0, 1]; // Cbc block cipher mode
+end;
+
+function TFrmMultiRecipientHybridEncryption.SymmetricEncrypt(SessionKey,
+  ClearText, IV: IBuffer): IBuffer;
 var
   key: Core_ICryptographicKey;
 begin
   result := nil;
-  key := AlgoProvider.CreateSymmetricKey(SessionKey);
+  key := SelectedSymAlgo.CreateSymmetricKey(SessionKey);
   try
-    result := TCore_CryptographicEngine.Encrypt(key, ClearText, nil);
+    result := TCore_CryptographicEngine.Encrypt(key, ClearText, IV);
   except
     on e: exception do
       ShowError('Symmetric encryption failed: ' + e.Message);
   end;
 end;
 
-function TFrmMultiRecipientHybridEncryption.SymmetricDecrypt(AlgoProvider: Core_ISymmetricKeyAlgorithmProvider;
-  SessionKey, Encrypted: IBuffer): IBuffer;
+function TFrmMultiRecipientHybridEncryption.SymmetricDecrypt(SessionKey,
+  Encrypted, IV: IBuffer): IBuffer;
 var
   key: Core_ICryptographicKey;
 begin
   result := nil;
-  key := AlgoProvider.CreateSymmetricKey(SessionKey);
+  key := SelectedSymAlgo.CreateSymmetricKey(SessionKey);
   try
-    result := TCore_CryptographicEngine.Decrypt(key, Encrypted, nil);
+    result := TCore_CryptographicEngine.Decrypt(key, Encrypted, IV);
   except
     on e: exception do
       ShowError('Symmetric decryption failed: ' + e.Message);
@@ -699,6 +735,7 @@ begin
     sl := TStringList.Create;
     try
       sl.AddStrings(lstHeader.Items);
+      sl.Add(edtIV.Text);
       sl.Add(edtEncryptedPayload.Text);
       sl.SaveToFile(SaveDialog.FileName);
     finally
@@ -717,9 +754,11 @@ begin
     sl := TStringList.Create;
     try
       sl.LoadFromFile(OpenDialog.FileName);
-      if sl.Count >= 2 then
+      if sl.Count >= 3 then
       begin
+        edtIV.Text := sl[sl.Count - 2];
         edtEncryptedPayload.Text := sl[sl.Count - 1];
+        sl.Delete(sl.Count - 2);
         sl.Delete(sl.Count - 1);
         lstHeader.Clear;
         lstHeader.Items.AddStrings(sl);
@@ -734,12 +773,19 @@ begin
 end;
 
 procedure TFrmMultiRecipientHybridEncryption.CalcMessageSize;
+var
+  ClearData, IV: IBuffer;
+  Len: cardinal;
 begin
   lblHeaderSize.Caption :=
     Format(rsHeaderSize,
       [lstHeader.Items.Count, length(lstHeader.Items.Text) div 3]);
-  lblPayloadSize.Caption :=
-    Format(rsPayloadSize, [DecodeFromBase64(edtEncryptedPayload.Text).Length]);
+  ClearData := TWinRTCryptoHelpers.DecodeFromBase64(edtEncryptedPayload.Text);
+  Len := ClearData.Length;
+  IV := TWinRTCryptoHelpers.DecodeFromBase64(edtIV.Text);
+  if assigned(IV) then
+    Len := Len + IV.Length;
+  lblPayloadSize.Caption := Format(rsPayloadSize, [Len]);
 end;
 {$ENDREGION}
 

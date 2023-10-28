@@ -25,7 +25,8 @@ program AsymmetricEncryption;
 
 uses
   Vcl.Forms,
-  AsymmetricEncryptionFrm in 'AsymmetricEncryptionFrm.pas' {frmAsymmetricEncryption};
+  AsymmetricEncryptionFrm in 'AsymmetricEncryptionFrm.pas' {frmAsymmetricEncryption},
+  Winapi.Security.Helpers in 'Winapi.Security.Helpers.pas';
 
 {$R *.res}
 

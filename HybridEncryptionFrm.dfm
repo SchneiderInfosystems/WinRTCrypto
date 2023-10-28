@@ -27,11 +27,10 @@ object FrmHybridEncryption: TFrmHybridEncryption
   object LabelAlgo: TLabel
     Left = 16
     Top = 24
-    Width = 119
+    Width = 123
     Height = 15
     Anchors = [akLeft, akTop, akRight]
     Caption = 'Symmetrical Algorithm'
-    ExplicitWidth = 123
   end
   object LabelKey: TLabel
     Left = 18
@@ -105,11 +104,10 @@ object FrmHybridEncryption: TFrmHybridEncryption
   object Label5: TLabel
     Left = 18
     Top = 577
-    Width = 111
+    Width = 115
     Height = 15
     Anchors = [akLeft, akTop, akRight]
     Caption = 'Encrypted session key'
-    ExplicitWidth = 115
   end
   object LabelDecryptedSessionKeySize: TLabel
     Left = 877
@@ -136,6 +134,13 @@ object FrmHybridEncryption: TFrmHybridEncryption
     Height = 15
     Caption = 'Clear text as decryption output result'
   end
+  object LabelIV: TLabel
+    Left = 17
+    Top = 473
+    Width = 10
+    Height = 15
+    Caption = 'IV'
+  end
   object EditSessionKey: TEdit
     Left = 152
     Top = 331
@@ -144,7 +149,6 @@ object FrmHybridEncryption: TFrmHybridEncryption
     Anchors = [akLeft, akTop, akRight]
     ReadOnly = True
     TabOrder = 0
-    ExplicitWidth = 715
   end
   object btnEncrypt: TButton
     Left = 18
@@ -165,7 +169,6 @@ object FrmHybridEncryption: TFrmHybridEncryption
     ReadOnly = True
     TabOrder = 2
     Text = 'edtEncryptedPayload'
-    ExplicitWidth = 968
   end
   object btnDecrypt: TButton
     Left = 18
@@ -186,7 +189,6 @@ object FrmHybridEncryption: TFrmHybridEncryption
     Lines.Strings = (
       'MemoClear')
     TabOrder = 4
-    ExplicitWidth = 970
   end
   object MemoResult: TMemo
     Left = 18
@@ -198,7 +200,6 @@ object FrmHybridEncryption: TFrmHybridEncryption
       'MemoResult')
     ReadOnly = True
     TabOrder = 5
-    ExplicitWidth = 968
   end
   object btnCreatePersonalKeys: TButton
     Left = 18
@@ -244,7 +245,6 @@ object FrmHybridEncryption: TFrmHybridEncryption
     Height = 23
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 10
-    ExplicitWidth = 834
   end
   object edtPrivateKey: TEdit
     Left = 152
@@ -253,7 +253,6 @@ object FrmHybridEncryption: TFrmHybridEncryption
     Height = 23
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 11
-    ExplicitWidth = 834
   end
   object edtEncryptedSessionKey: TEdit
     Left = 18
@@ -264,7 +263,6 @@ object FrmHybridEncryption: TFrmHybridEncryption
     ReadOnly = True
     TabOrder = 12
     Text = 'edtEncryptedSessionKey'
-    ExplicitWidth = 968
   end
   object EditDecryptedSessionKey: TEdit
     Left = 152
@@ -274,7 +272,6 @@ object FrmHybridEncryption: TFrmHybridEncryption
     Anchors = [akLeft, akTop, akRight]
     ReadOnly = True
     TabOrder = 13
-    ExplicitWidth = 715
   end
   object edtUsedPublicKey: TEdit
     Left = 280
@@ -285,11 +282,10 @@ object FrmHybridEncryption: TFrmHybridEncryption
     TabOrder = 14
     Text = 'edtUsedPublicKey'
     StyleElements = [seFont, seBorder]
-    ExplicitWidth = 706
   end
   object btnSaveEncryptedMsg: TButton
     Left = 18
-    Top = 480
+    Top = 496
     Width = 191
     Height = 25
     Caption = 'Save Encrypted Message'
@@ -298,7 +294,7 @@ object FrmHybridEncryption: TFrmHybridEncryption
   end
   object btnLoadEncryptedMessage: TButton
     Left = 226
-    Top = 480
+    Top = 496
     Width = 191
     Height = 25
     Caption = 'Load Encrypted Message'
@@ -318,10 +314,8 @@ object FrmHybridEncryption: TFrmHybridEncryption
     Items.Strings = (
       'AesCbc'
       'AesCbcPkcs7'
-      'AesCcm'
       'AesEcb'
-      'AesEcbPkcs7'
-      'AesGcm')
+      'AesEcbPkcs7')
   end
   object cboSymKeySize: TComboBox
     Left = 373
@@ -371,6 +365,13 @@ object FrmHybridEncryption: TFrmHybridEncryption
       '2048'
       '4096'
       '8192')
+  end
+  object edtIV: TEdit
+    Left = 39
+    Top = 469
+    Width = 297
+    Height = 23
+    TabOrder = 21
   end
   object SaveDialog: TSaveDialog
     DefaultExt = 'crypt'

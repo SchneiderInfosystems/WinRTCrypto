@@ -47,28 +47,35 @@ type
     LabelResult: TLabel;
     ShapeResult: TShape;
     btnSaveEncrypt: TButton;
-    btnLoad: TButton;
+    btnLoadEncrypt: TButton;
     btnSaveKey: TButton;
     btnLoadKey: TButton;
     LabelKeySize: TLabel;
     EditKeySize: TEdit;
     cboKeySize: TComboBox;
+    EditIV: TEdit;
+    LabelIV: TLabel;
     procedure btnCreateKeyClick(Sender: TObject);
     procedure btnEncryptClick(Sender: TObject);
     procedure btnDecryptClick(Sender: TObject);
     procedure btnSaveEncryptClick(Sender: TObject);
     procedure ComboBoxAlgoChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure btnLoadClick(Sender: TObject);
+    procedure btnLoadEncryptClick(Sender: TObject);
     procedure btnSaveKeyClick(Sender: TObject);
     procedure btnLoadKeyClick(Sender: TObject);
   private
     fDataFolder: string;
-    fAlgoProvider: Core_ISymmetricKeyAlgorithmProvider;
     fKey: Core_ICryptographicKey;
-    function SelectedAlgo: HSTRING;
+    function SelectedAlgo: Core_ISymmetricKeyAlgorithmProvider;
     function SelectKeySizeInBytes: integer;
+    function SelectAlgoRequiresIV: boolean;
+    function SelectAlgoRequiresPadding: boolean;
     procedure InitWithNewKeys;
+    procedure ShowError(const Msg: string);
+    procedure ShowWarning(const Msg: string);
+    procedure ShowResult(const Msg: string);
+    procedure ClearResult;
   end;
 
 var
@@ -76,41 +83,85 @@ var
 
 implementation
 
+uses
+  Winapi.Security.Helpers;
+
 {$R *.dfm}
 
 resourcestring
   rsTS = 'Test sample for symmetrical encryption %s at %s with Unicode Ж•₱₲₳‡₾';
 
+{$REGION 'GUI Handling'}
 procedure TFrmSymmetricEncryption.FormCreate(Sender: TObject);
 begin
   ComboBoxAlgoChange(Sender);
 end;
 
-procedure TFrmSymmetricEncryption.btnCreateKeyClick(Sender: TObject);
-var
-  Key: IBuffer;
-  hs: HSTRING;
+procedure TFrmSymmetricEncryption.ComboBoxAlgoChange(Sender: TObject);
 begin
-  fAlgoProvider := TCore_SymmetricKeyAlgorithmProvider.OpenAlgorithm(SelectedAlgo);
-  Key := TCryptographicBuffer.GenerateRandom(SelectKeySizeInBytes);
-  hs := TCryptographicBuffer.EncodeToBase64String(Key);
-  EditKey.Text := TWindowsString.HStringToString(hs);
-  fKey := fAlgoProvider.CreateSymmetricKey(Key);
-  EditKeySize.Text := fKey.KeySize.ToString;
-  InitWithNewKeys;
+  fDataFolder :=
+    IncludeTrailingPathDelimiter(
+      ExpandFileName(
+        ExtractFileDir(Application.ExeName) + '\..\..\Data\' + ComboBoxAlgo.Text));
+  if not DirectoryExists(fDataFolder, false) then
+    ForceDirectories(fDataFolder);
+  EditKey.Text := '';
+  btnEncrypt.Enabled := false;
+  btnDecrypt.Enabled := false;
+  btnSaveKey.Enabled := false;
+  EditClear.Text := Format(rsTS, [ComboBoxAlgo.Text, TimeToStr(Now)]);
+  btnLoadKey.Enabled := FileExists(fDataFolder + 'Private.key');
+  btnLoadEncrypt.Enabled := FileExists(fDataFolder + 'Encrypted.txt');
 end;
 
 procedure TFrmSymmetricEncryption.InitWithNewKeys;
 begin
   btnEncrypt.Enabled := true;
+  btnLoadEncrypt.Enabled := true;
+  btnDecrypt.Enabled := false;
   btnSaveKey.Enabled := true;
   EditEncrypted.Text := '';
   EditResult.Text := '';
+  ClearResult;
+end;
+{$ENDREGION}
+
+{$REGION 'Result Panel'}
+procedure TFrmSymmetricEncryption.ShowError(const Msg: string);
+begin
+  ShapeResult.Brush.Color := clRed;
+  LabelResult.Caption := Msg;
+end;
+
+procedure TFrmSymmetricEncryption.ShowWarning(const Msg: string);
+begin
+  ShapeResult.Brush.Color := clYellow;
+  LabelResult.Caption := Msg;
+end;
+
+procedure TFrmSymmetricEncryption.ShowResult(const Msg: string);
+begin
+  ShapeResult.Brush.Color := clLime;
+  LabelResult.Caption := Msg;
+end;
+
+procedure TFrmSymmetricEncryption.ClearResult;
+begin
   ShapeResult.Brush.Color := clBtnFace;
   LabelResult.Caption := '';
-  btnEncrypt.Enabled := true;
-  btnLoad.Enabled := true;
-  btnDecrypt.Enabled := false;
+end;
+{$ENDREGION}
+
+{$REGION 'Key Management'}
+procedure TFrmSymmetricEncryption.btnCreateKeyClick(Sender: TObject);
+var
+  Key: IBuffer;
+begin
+  Key := TCryptographicBuffer.GenerateRandom(SelectKeySizeInBytes);
+  EditKey.Text := TWinRTCryptoHelpers.EncodeAsBase64(Key);
+  fKey := SelectedAlgo.CreateSymmetricKey(Key);
+  EditKeySize.Text := fKey.KeySize.ToString;
+  InitWithNewKeys;
 end;
 
 procedure TFrmSymmetricEncryption.btnSaveKeyClick(Sender: TObject);
@@ -129,140 +180,144 @@ end;
 procedure TFrmSymmetricEncryption.btnLoadKeyClick(Sender: TObject);
 var
   sl: TStringList;
-  hs: HSTRING;
   Key: IBuffer;
 begin
   sl := TStringList.Create;
   try
     sl.LoadFromFile(fDataFolder + 'Private.key');
     EditKey.Text := sl.Text;
-    hs := TWindowsString.Create(sl.Text);
-    Key := TCryptographicBuffer.DecodeFromBase64String(hs);
-    fAlgoProvider := TCore_SymmetricKeyAlgorithmProvider.OpenAlgorithm(SelectedAlgo);
-    fKey := fAlgoProvider.CreateSymmetricKey(Key);
+    Key := TWinRTCryptoHelpers.DecodeFromBase64(sl.Text);
+    fKey := SelectedAlgo.CreateSymmetricKey(Key);
     EditKeySize.Text := fKey.KeySize.ToString;
   finally
     sl.Free;
   end;
   InitWithNewKeys;
 end;
+{$ENDREGION}
 
+{$REGION 'Asymmetric Encrypt/Decryption'}
 procedure TFrmSymmetricEncryption.btnEncryptClick(Sender: TObject);
 var
-  data: TBytes;
-  cleardata, encrypted: IBuffer;
-  hs: HSTRING;
+  ClearData, Encrypted, IV: IBuffer;
 begin
-  data := TEncoding.UTF8.GetBytes(EditClear.Text);
-  cleardata := TCryptographicBuffer.CreateFromByteArray(length(data), @data[0]);
-//  IV := TCryptographicBuffer.CreateFromByteArray(16, @data[0]);
+  ClearData := TWinRTCryptoHelpers.StrToIBuffer(EditClear.Text);
+  if SelectAlgoRequiresPadding then
+  begin
+    // Ensure that the message length is a multiple of the block length.
+    // This is not necessary for PKCS #7 algorithms which automatically pad the
+    // message to an appropriate length.
+    if ClearData.Length mod SelectedAlgo.BlockLength <> 0 then
+    begin
+      ShowWarning(
+        'Message length must be multiple of block length: Message padded now');
+      EditClear.Text := EditClear.Text + StringOfChar('_',
+        SelectedAlgo.BlockLength - ClearData.Length mod SelectedAlgo.BlockLength);
+      // A better solution would be to use a message length and a random pad
+      ClearData := TWinRTCryptoHelpers.StrToIBuffer(EditClear.Text);
+    end;
+  end;
   try
-    encrypted := TCore_CryptographicEngine.Encrypt(fKey, cleardata, nil {IV});
-    hs := TCryptographicBuffer.EncodeToBase64String(encrypted);
-    EditEncrypted.Text := TWindowsString.HStringToString(hs);
+    if SelectAlgoRequiresIV then
+      IV := TCryptographicBuffer.GenerateRandom(SelectedAlgo.BlockLength)
+    else
+      IV := nil;
+    Encrypted := TCore_CryptographicEngine.Encrypt(fKey, ClearData, IV);
+    EditEncrypted.Text := TWinRTCryptoHelpers.EncodeAsBase64(Encrypted);
+    EditIV.Text := TWinRTCryptoHelpers.EncodeAsBase64(IV);
     btnSaveEncrypt.Enabled := true;
     btnDecrypt.Enabled := true;
   except
     on e: exception do
-    begin
-      ShapeResult.Brush.Color := clRed;
-      LabelResult.Caption := 'Test failed: ' + e.Message;
-    end;
+      ShowError('Encryption failed: ' + e.Message);
   end;
-end;
-
-procedure TFrmSymmetricEncryption.btnLoadClick(Sender: TObject);
-var
-  sl: TStringList;
-begin
-  sl := TStringList.Create;
-  try
-    sl.LoadFromFile(fDataFolder + 'Encrypted.txt');
-    EditEncrypted.Text := sl.Text;
-    btnDecrypt.Enabled := true;
-  finally
-    sl.Free;
-  end;
-end;
-
-procedure TFrmSymmetricEncryption.btnSaveEncryptClick(Sender: TObject);
-var
-  sl: TStringList;
-begin
-  sl := TStringList.Create;
-  try
-    sl.Text := EditEncrypted.Text;
-    sl.SaveToFile(fDataFolder + 'Encrypted.txt');
-  finally
-    sl.Free;
-  end;
-end;
-
-procedure TFrmSymmetricEncryption.ComboBoxAlgoChange(Sender: TObject);
-begin
-  fDataFolder :=
-    IncludeTrailingPathDelimiter(
-      ExpandFileName(
-        ExtractFileDir(Application.ExeName) + '\..\..\Data\' + ComboBoxAlgo.Text));
-  if not DirectoryExists(fDataFolder, false) then
-    ForceDirectories(fDataFolder);
-  EditKey.Text := '';
-  btnEncrypt.Enabled := false;
-  btnDecrypt.Enabled := false;
-  btnSaveKey.Enabled := false;
-  EditClear.Text := Format(rsTS, [ComboBoxAlgo.Text, TimeToStr(Now)]);
-  btnLoadKey.Enabled := FileExists(fDataFolder + 'Private.key');
-  btnLoad.Enabled := FileExists(fDataFolder + 'Encrypted.txt');
 end;
 
 procedure TFrmSymmetricEncryption.btnDecryptClick(Sender: TObject);
 var
-  data: TBytes;
-  cleardata, encrypted: IBuffer;
-  hs: HSTRING;
+  cleardata, encrypted, IV: IBuffer;
 begin
-  hs := TWindowsString.Create(EditEncrypted.Text);
-  encrypted := TCryptographicBuffer.DecodeFromBase64String(hs);
+  encrypted := TWinRTCryptoHelpers.DecodeFromBase64(EditEncrypted.Text);
+  IV := TWinRTCryptoHelpers.DecodeFromBase64(EditIV.Text);
   try
-    cleardata := TCore_CryptographicEngine.Decrypt(fKey, encrypted, nil {IV});
-    Setlength(data, cleardata.Length);
-    hs := TCryptographicBuffer.ConvertBinaryToString(BinaryStringEncoding.Utf8, cleardata);
-    EditResult.Text := hs.ToString;
+    cleardata := TCore_CryptographicEngine.Decrypt(fKey, encrypted, IV);
+    EditResult.Text := TWinRTCryptoHelpers.IBufferToStr(cleardata);
     if SameText(EditClear.Text, EditResult.Text) then
-    begin
-      ShapeResult.Brush.Color := clLime;
-      LabelResult.Caption := 'Test passed';
-    end else begin
-      ShapeResult.Brush.Color := clYellow;
-      LabelResult.Caption := 'Test failed: resulting clear text different than starting text';
-    end;
+      ShowResult(
+        'Passed: Resulting clear text is identical to starting clear text')
+    else
+      ShowWarning(
+        'Failed: Resulting clear text different than starting clear text');
   except
     on e: exception do
-    begin
-      ShapeResult.Brush.Color := clRed;
-      LabelResult.Caption := 'Test failed: ' + e.Message;
-    end;
+      ShowError('Decryption failed: ' + e.Message);
   end;
 end;
 
-function TFrmSymmetricEncryption.SelectedAlgo: HSTRING;
+function TFrmSymmetricEncryption.SelectedAlgo: Core_ISymmetricKeyAlgorithmProvider;
+// Hint: AesCcm and AesGcm reuqires EncryptAndAuthenticate
+var
+  Algo: HString;
 begin
   case ComboBoxAlgo.ItemIndex of
-    0: result := TCore_SymmetricAlgorithmNames.AesCbc;
-    1: result := TCore_SymmetricAlgorithmNames.AesCbcPkcs7;
-    2: result := TCore_SymmetricAlgorithmNames.AesCcm;
-    3: result := TCore_SymmetricAlgorithmNames.AesEcb;
-    4: result := TCore_SymmetricAlgorithmNames.AesEcbPkcs7;
-    5: result := TCore_SymmetricAlgorithmNames.AesGcm;
+    0: Algo := TCore_SymmetricAlgorithmNames.AesCbc;
+    1: Algo := TCore_SymmetricAlgorithmNames.AesCbcPkcs7;
+    2: Algo := TCore_SymmetricAlgorithmNames.AesEcb;
+    3: Algo := TCore_SymmetricAlgorithmNames.AesEcbPkcs7;
     else
       raise Exception.Create('Unknown Core_SymmetricAlgorithmNames');
   end;
-
+  result := TCore_SymmetricKeyAlgorithmProvider.OpenAlgorithm(Algo);
 end;
 
 function TFrmSymmetricEncryption.SelectKeySizeInBytes: integer;
 begin
   result := StrToInt(cboKeySize.Text) div 8;
 end;
+
+function TFrmSymmetricEncryption.SelectAlgoRequiresPadding: boolean;
+begin
+  result := ComboBoxAlgo.ItemIndex in [0, 2]; // Without PKCS #7
+end;
+
+function TFrmSymmetricEncryption.SelectAlgoRequiresIV: boolean;
+begin
+  result := ComboBoxAlgo.ItemIndex in [0, 1]; // Cbc block cipher mode
+end;
+{$ENDREGION}
+
+{$REGION 'Encrypted Message Load/Save'}
+procedure TFrmSymmetricEncryption.btnSaveEncryptClick(Sender: TObject);
+var
+  sl: TStringList;
+begin
+  sl := TStringList.Create;
+  try
+    sl.Add(EditEncrypted.Text);
+    sl.Add(EditIV.Text);
+    sl.SaveToFile(fDataFolder + 'Encrypted.txt');
+  finally
+    sl.Free;
+  end;
+end;
+
+procedure TFrmSymmetricEncryption.btnLoadEncryptClick(Sender: TObject);
+var
+  sl: TStringList;
+begin
+  sl := TStringList.Create;
+  try
+    sl.LoadFromFile(fDataFolder + 'Encrypted.txt');
+    if sl.Count <> 2 then
+      raise Exception.Create(
+        'Format Error: Encrypted text and IV on two lines expected');
+    EditEncrypted.Text := sl[0];
+    EditIV.Text := sl[1];
+    btnDecrypt.Enabled := true;
+  finally
+    sl.Free;
+  end;
+end;
+{$ENDREGION}
 
 end.

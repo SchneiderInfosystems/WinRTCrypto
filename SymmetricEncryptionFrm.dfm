@@ -27,20 +27,18 @@ object FrmSymmetricEncryption: TFrmSymmetricEncryption
   object LabelAlgo: TLabel
     Left = 24
     Top = 32
-    Width = 48
+    Width = 54
     Height = 15
     Anchors = [akLeft, akTop, akRight]
     Caption = 'Algorithm'
-    ExplicitWidth = 54
   end
   object LabelKey: TLabel
     Left = 24
     Top = 115
-    Width = 13
+    Width = 19
     Height = 15
     Anchors = [akLeft, akTop, akRight]
     Caption = 'Key'
-    ExplicitWidth = 19
   end
   object LabelResult: TLabel
     Left = 55
@@ -65,6 +63,13 @@ object FrmSymmetricEncryption: TFrmSymmetricEncryption
     Height = 15
     Caption = 'Key size [bits]'
   end
+  object LabelIV: TLabel
+    Left = 114
+    Top = 213
+    Width = 16
+    Height = 15
+    Caption = 'IV'
+  end
   object ComboBoxAlgo: TComboBox
     Left = 112
     Top = 29
@@ -79,11 +84,8 @@ object FrmSymmetricEncryption: TFrmSymmetricEncryption
     Items.Strings = (
       'AesCbc'
       'AesCbcPkcs7'
-      'AesCcm'
       'AesEcb'
-      'AesEcbPkcs7'
-      'AesGcm')
-    ExplicitWidth = 341
+      'AesEcbPkcs7')
   end
   object btnCreateKey: TButton
     Left = 24
@@ -102,7 +104,6 @@ object FrmSymmetricEncryption: TFrmSymmetricEncryption
     Anchors = [akLeft, akTop, akRight]
     ReadOnly = True
     TabOrder = 2
-    ExplicitWidth = 469
   end
   object EditClear: TEdit
     Left = 24
@@ -112,7 +113,6 @@ object FrmSymmetricEncryption: TFrmSymmetricEncryption
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 3
     TextHint = 'Clear text'
-    ExplicitWidth = 559
   end
   object btnEncrypt: TButton
     Left = 24
@@ -131,7 +131,6 @@ object FrmSymmetricEncryption: TFrmSymmetricEncryption
     Height = 23
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 5
-    ExplicitWidth = 559
   end
   object btnDecrypt: TButton
     Left = 24
@@ -152,7 +151,6 @@ object FrmSymmetricEncryption: TFrmSymmetricEncryption
     ReadOnly = True
     TabOrder = 7
     TextHint = 'resulting clear text'
-    ExplicitWidth = 565
   end
   object btnSaveEncrypt: TButton
     Left = 445
@@ -164,7 +162,7 @@ object FrmSymmetricEncryption: TFrmSymmetricEncryption
     TabOrder = 8
     OnClick = btnSaveEncryptClick
   end
-  object btnLoad: TButton
+  object btnLoadEncrypt: TButton
     Left = 526
     Top = 208
     Width = 75
@@ -172,7 +170,7 @@ object FrmSymmetricEncryption: TFrmSymmetricEncryption
     Caption = 'Load'
     Enabled = False
     TabOrder = 9
-    OnClick = btnLoadClick
+    OnClick = btnLoadEncryptClick
   end
   object btnSaveKey: TButton
     Left = 440
@@ -184,7 +182,6 @@ object FrmSymmetricEncryption: TFrmSymmetricEncryption
     Enabled = False
     TabOrder = 10
     OnClick = btnSaveKeyClick
-    ExplicitLeft = 434
   end
   object btnLoadKey: TButton
     Left = 514
@@ -195,7 +192,6 @@ object FrmSymmetricEncryption: TFrmSymmetricEncryption
     Caption = 'Load Key'
     TabOrder = 11
     OnClick = btnLoadKeyClick
-    ExplicitLeft = 508
   end
   object EditKeySize: TEdit
     Left = 256
@@ -212,16 +208,22 @@ object FrmSymmetricEncryption: TFrmSymmetricEncryption
     Height = 23
     Style = csDropDownList
     Anchors = [akRight]
-    ItemIndex = 1
+    ItemIndex = 2
     TabOrder = 13
     Text = '1024'
     OnChange = ComboBoxAlgoChange
     Items.Strings = (
+      '256'
       '512'
       '1024'
       '2048'
       '4096')
-    ExplicitLeft = 514
-    ExplicitTop = 28
+  end
+  object EditIV: TEdit
+    Left = 136
+    Top = 209
+    Width = 297
+    Height = 23
+    TabOrder = 14
   end
 end
