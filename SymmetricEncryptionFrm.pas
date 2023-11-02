@@ -35,7 +35,7 @@ uses
 type
   TFrmSymmetricEncryption = class(TForm)
     LabelAlgo: TLabel;
-    ComboBoxAlgo: TComboBox;
+    cboAlgo: TComboBox;
     btnCreateKey: TButton;
     LabelKey: TLabel;
     EditKey: TEdit;
@@ -59,7 +59,7 @@ type
     procedure btnEncryptClick(Sender: TObject);
     procedure btnDecryptClick(Sender: TObject);
     procedure btnSaveEncryptClick(Sender: TObject);
-    procedure ComboBoxAlgoChange(Sender: TObject);
+    procedure cboAlgoChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure btnLoadEncryptClick(Sender: TObject);
     procedure btnSaveKeyClick(Sender: TObject);
@@ -94,22 +94,22 @@ resourcestring
 {$REGION 'GUI Handling'}
 procedure TFrmSymmetricEncryption.FormCreate(Sender: TObject);
 begin
-  ComboBoxAlgoChange(Sender);
+  cboAlgoChange(Sender);
 end;
 
-procedure TFrmSymmetricEncryption.ComboBoxAlgoChange(Sender: TObject);
+procedure TFrmSymmetricEncryption.cboAlgoChange(Sender: TObject);
 begin
   fDataFolder :=
     IncludeTrailingPathDelimiter(
       ExpandFileName(
-        ExtractFileDir(Application.ExeName) + '\..\..\Data\' + ComboBoxAlgo.Text));
+        ExtractFileDir(Application.ExeName) + '\..\..\Data\' + cboAlgo.Text));
   if not DirectoryExists(fDataFolder, false) then
     ForceDirectories(fDataFolder);
   EditKey.Text := '';
   btnEncrypt.Enabled := false;
   btnDecrypt.Enabled := false;
   btnSaveKey.Enabled := false;
-  EditClear.Text := Format(rsTS, [ComboBoxAlgo.Text, TimeToStr(Now)]);
+  EditClear.Text := Format(rsTS, [cboAlgo.Text, TimeToStr(Now)]);
   btnLoadKey.Enabled := FileExists(fDataFolder + 'Private.key');
   btnLoadEncrypt.Enabled := FileExists(fDataFolder + 'Encrypted.txt');
 end;
@@ -259,7 +259,7 @@ function TFrmSymmetricEncryption.SelectedAlgo: Core_ISymmetricKeyAlgorithmProvid
 var
   Algo: HString;
 begin
-  case ComboBoxAlgo.ItemIndex of
+  case cboAlgo.ItemIndex of
     0: Algo := TCore_SymmetricAlgorithmNames.AesCbc;
     1: Algo := TCore_SymmetricAlgorithmNames.AesCbcPkcs7;
     2: Algo := TCore_SymmetricAlgorithmNames.AesEcb;
@@ -277,12 +277,12 @@ end;
 
 function TFrmSymmetricEncryption.SelectAlgoRequiresPadding: boolean;
 begin
-  result := ComboBoxAlgo.ItemIndex in [0, 2]; // Without PKCS #7
+  result := cboAlgo.ItemIndex in [0, 2]; // Without PKCS #7
 end;
 
 function TFrmSymmetricEncryption.SelectAlgoRequiresIV: boolean;
 begin
-  result := ComboBoxAlgo.ItemIndex in [0, 1]; // Cbc block cipher mode
+  result := cboAlgo.ItemIndex in [0, 1]; // Cbc block cipher mode
 end;
 {$ENDREGION}
 

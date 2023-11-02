@@ -25,7 +25,7 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
   object ShapeResult: TShape
     Left = 24
     Top = 416
-    Width = 571
+    Width = 565
     Height = 65
     Anchors = [akLeft, akTop, akRight]
     Shape = stRoundRect
@@ -34,7 +34,7 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
   object LabelResult: TLabel
     Left = 55
     Top = 440
-    Width = 516
+    Width = 510
     Height = 20
     Alignment = taCenter
     Anchors = [akLeft, akTop, akRight]
@@ -54,13 +54,6 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     Height = 15
     Caption = 'Public Key'
   end
-  object LabelKeySize: TLabel
-    Left = 152
-    Top = 76
-    Width = 71
-    Height = 15
-    Caption = 'Key size [bits]'
-  end
   object LabelPrivateKey: TLabel
     Left = 24
     Top = 144
@@ -68,14 +61,22 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     Height = 15
     Caption = 'Private Key'
   end
+  object LabelKeySize: TLabel
+    Left = 437
+    Top = 32
+    Width = 71
+    Height = 15
+    Caption = 'Key size [bits]'
+  end
   object EditClear: TEdit
     Left = 24
     Top = 168
-    Width = 565
+    Width = 559
     Height = 23
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 0
     TextHint = 'Clear text'
+    ExplicitWidth = 553
   end
   object btnEncrypt: TButton
     Left = 24
@@ -90,10 +91,11 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
   object EditEncrypted: TEdit
     Left = 24
     Top = 264
-    Width = 565
+    Width = 559
     Height = 23
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 2
+    ExplicitWidth = 553
   end
   object btnDecrypt: TButton
     Left = 24
@@ -105,17 +107,17 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     TabOrder = 3
     OnClick = btnDecryptClick
   end
-  object ComboBoxAlgo: TComboBox
+  object cboAlgo: TComboBox
     Left = 112
     Top = 29
-    Width = 477
+    Width = 289
     Height = 23
     Style = csDropDownList
     Anchors = [akLeft, akTop, akRight]
     ItemIndex = 0
     TabOrder = 4
     Text = 'RsaPkcs1'
-    OnChange = ComboBoxAlgoChange
+    OnChange = cboAlgoChange
     Items.Strings = (
       'RsaPkcs1'
       'RsaOaepSha1'
@@ -126,12 +128,13 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
   object EditResult: TEdit
     Left = 24
     Top = 368
-    Width = 571
+    Width = 565
     Height = 23
     Anchors = [akLeft, akTop, akRight]
     ReadOnly = True
     TabOrder = 5
     TextHint = 'resulting clear text'
+    ExplicitWidth = 559
   end
   object btnCreateKeys: TButton
     Left = 24
@@ -145,79 +148,89 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
   object EditPublicKey: TEdit
     Left = 120
     Top = 112
-    Width = 469
+    Width = 463
     Height = 23
     Anchors = [akLeft, akTop, akRight]
     ReadOnly = True
     TabOrder = 7
-  end
-  object EditKeySize: TEdit
-    Left = 240
-    Top = 73
-    Width = 73
-    Height = 23
-    ReadOnly = True
-    TabOrder = 8
+    ExplicitWidth = 457
   end
   object EditPrivateKey: TEdit
     Left = 120
     Top = 139
-    Width = 469
+    Width = 463
     Height = 23
     Anchors = [akLeft, akTop, akRight]
-    TabOrder = 9
+    TabOrder = 8
+    ExplicitWidth = 457
   end
   object btnSaveKeys: TButton
-    Left = 359
+    Left = 353
     Top = 72
     Width = 68
     Height = 25
     Anchors = [akTop, akRight]
     Caption = 'Save Keys'
     Enabled = False
-    TabOrder = 10
+    TabOrder = 9
     OnClick = btnSaveKeysClick
+    ExplicitLeft = 347
   end
   object btnSaveEncrypt: TButton
-    Left = 439
+    Left = 427
     Top = 216
     Width = 75
     Height = 25
     Anchors = [akTop, akRight]
     Caption = 'Save'
     Enabled = False
-    TabOrder = 11
+    TabOrder = 10
     OnClick = btnSaveEncryptClick
   end
   object btnLoadEncrypt: TButton
-    Left = 520
+    Left = 508
     Top = 216
     Width = 75
     Height = 25
     Anchors = [akTop, akRight]
     Caption = 'Load'
     Enabled = False
-    TabOrder = 12
+    TabOrder = 11
     OnClick = btnLoadEncryptClick
   end
   object btnLoadKeys: TButton
-    Left = 433
+    Left = 427
     Top = 72
     Width = 75
     Height = 25
     Anchors = [akTop, akRight]
     Caption = 'Load Keys'
-    TabOrder = 13
+    TabOrder = 12
     OnClick = btnLoadKeysClick
+    ExplicitLeft = 421
   end
   object btnLoadPubKey: TButton
-    Left = 520
+    Left = 508
     Top = 72
     Width = 75
     Height = 25
     Anchors = [akTop, akRight]
     Caption = 'Load Public'
-    TabOrder = 14
+    TabOrder = 13
     OnClick = btnLoadPubKeyClick
+  end
+  object cboKeySize: TComboBox
+    Left = 514
+    Top = 29
+    Width = 69
+    Height = 23
+    Style = csDropDownList
+    ItemIndex = 0
+    TabOrder = 14
+    Text = '2048'
+    Items.Strings = (
+      '2048'
+      '3072'
+      '4096')
   end
 end

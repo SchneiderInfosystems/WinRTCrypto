@@ -150,11 +150,7 @@ end;
 
 procedure TFrmHybridEncryption.CheckKeySizes(Sender: TObject);
 begin
-  // Asymetric key size starts with 1024 while symmetric key size starts with 512
-  if cboAsymKeySize.ItemIndex < cboSymKeySize.ItemIndex then
-    ShowError('Asymmetrical key size must be greater than symmetrical key size!')
-  else
-    ClearResult;
+  ClearResult;
 end;
 
 procedure TFrmHybridEncryption.CheckActions;
@@ -263,8 +259,13 @@ begin
     end;
     PersonalKey := ImportPrivateKey(edtPrivateKey.Text);
     if assigned(PersonalKey) then
+    begin
       edtPublicKey.Text := TWinRTCryptoHelpers.EncodeAsBase64(
         PersonalKey.ExportPublicKey);
+      cboAsymKeySize.ItemIndex :=
+        cboAsymKeySize.Items.IndexOf(PersonalKey.KeySize.ToString);
+      cboAsymKeySize.Enabled := false;
+    end;
     CheckActions;
   end;
 end;

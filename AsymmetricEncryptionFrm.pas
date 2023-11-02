@@ -38,7 +38,7 @@ type
     btnEncrypt: TButton;
     EditEncrypted: TEdit;
     btnDecrypt: TButton;
-    ComboBoxAlgo: TComboBox;
+    cboAlgo: TComboBox;
     LabelAlgo: TLabel;
     EditResult: TEdit;
     ShapeResult: TShape;
@@ -46,8 +46,6 @@ type
     LabelResult: TLabel;
     EditPublicKey: TEdit;
     LabelPublicKey: TLabel;
-    EditKeySize: TEdit;
-    LabelKeySize: TLabel;
     EditPrivateKey: TEdit;
     LabelPrivateKey: TLabel;
     btnSaveKeys: TButton;
@@ -55,6 +53,8 @@ type
     btnLoadEncrypt: TButton;
     btnLoadKeys: TButton;
     btnLoadPubKey: TButton;
+    cboKeySize: TComboBox;
+    LabelKeySize: TLabel;
     procedure btnEncryptClick(Sender: TObject);
     procedure btnDecryptClick(Sender: TObject);
     procedure btnCreateKeysClick(Sender: TObject);
@@ -63,13 +63,13 @@ type
     procedure btnLoadEncryptClick(Sender: TObject);
     procedure btnLoadKeysClick(Sender: TObject);
     procedure btnLoadPubKeyClick(Sender: TObject);
-    procedure ComboBoxAlgoChange(Sender: TObject);
+    procedure cboAlgoChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
   private
     fDataFolder: string;
     fKeys: Core_ICryptographicKey;
     function SelectedAlgo: Core_IAsymmetricKeyAlgorithmProvider;
-    function KeyLength: integer;
+    function SelectedKeyLength: integer;
     procedure InitWithNewKeys;
     procedure ShowError(const Msg: string);
     procedure ShowWarning(const Msg: string);
@@ -93,15 +93,15 @@ resourcestring
 {$REGION 'GUI Handling'}
 procedure TfrmAsymmetricEncryption.FormCreate(Sender: TObject);
 begin
-  ComboBoxAlgoChange(Sender);
+  cboAlgoChange(Sender);
 end;
 
-procedure TfrmAsymmetricEncryption.ComboBoxAlgoChange(Sender: TObject);
+procedure TfrmAsymmetricEncryption.cboAlgoChange(Sender: TObject);
 begin
   fDataFolder :=
     IncludeTrailingPathDelimiter(
       ExpandFileName(
-        ExtractFileDir(Application.ExeName) + '\..\..\Data\' + ComboBoxAlgo.Text));
+        ExtractFileDir(Application.ExeName) + '\..\..\Data\' + cboAlgo.Text));
   if not DirectoryExists(fDataFolder, false) then
     ForceDirectories(fDataFolder);
   EditPublicKey.Text := '';
@@ -109,7 +109,7 @@ begin
   btnEncrypt.Enabled := false;
   btnDecrypt.Enabled := false;
   btnSaveKeys.Enabled := false;
-  EditClear.Text := Format(rsTS, [ComboBoxAlgo.Text, TimeToStr(Now)]);
+  EditClear.Text := Format(rsTS, [cboAlgo.Text, TimeToStr(Now)]);
   btnLoadKeys.Enabled := FileExists(fDataFolder + 'PrivateAndPublic.key');
   btnLoadPubKey.Enabled := FileExists(fDataFolder + 'Public.key');
   btnLoadEncrypt.Enabled := FileExists(fDataFolder + 'Encrypted.txt');
@@ -158,14 +158,18 @@ procedure TfrmAsymmetricEncryption.btnCreateKeysClick(Sender: TObject);
 var
   PublicKey, PrivateKey: IBuffer;
 begin
-  fKeys := SelectedAlgo.CreateKeyPair(KeyLength);
-  EditKeySize.Text := fKeys.KeySize.ToString;
-  PublicKey := fKeys.ExportPublicKey;
-  EditPublicKey.Text := TWinRTCryptoHelpers.EncodeAsBase64(PublicKey);
-  PrivateKey :=
-    fKeys.Export(Core_CryptographicPrivateKeyBlobType.Pkcs8RawPrivateKeyInfo);
-  EditPrivateKey.Text := TWinRTCryptoHelpers.EncodeAsBase64(PrivateKey);
-  InitWithNewKeys;
+  Screen.Cursor := crHourGlass;
+  try
+    fKeys := SelectedAlgo.CreateKeyPair(SelectedKeyLength);
+    PublicKey := fKeys.ExportPublicKey;
+    EditPublicKey.Text := TWinRTCryptoHelpers.EncodeAsBase64(PublicKey);
+    PrivateKey :=
+      fKeys.Export(Core_CryptographicPrivateKeyBlobType.Pkcs8RawPrivateKeyInfo);
+    EditPrivateKey.Text := TWinRTCryptoHelpers.EncodeAsBase64(PrivateKey);
+    InitWithNewKeys;
+  finally
+    Screen.Cursor := crDefault;
+  end;
 end;
 
 procedure TfrmAsymmetricEncryption.btnSaveKeysClick(Sender: TObject);
@@ -191,7 +195,6 @@ var
   sl: TStringList;
   Keys, PublicKeyAsStr: string;
   PublicKey, PrivateKey: IBuffer;
-  KeyBlob: IBuffer;
   NewKeys: boolean;
 begin
   sl := TStringList.Create;
@@ -201,23 +204,33 @@ begin
   finally
     sl.Free;
   end;
-  KeyBlob := TWinRTCryptoHelpers.DecodeFromBase64(Keys);
-  fKeys := SelectedAlgo.ImportKeyPair(KeyBlob,
-    Core_CryptographicPrivateKeyBlobType.Pkcs8RawPrivateKeyInfo);
-  EditKeySize.Text := fKeys.KeySize.ToString;
-  PublicKey := fKeys.ExportPublicKey;
-  PublicKeyAsStr := TWinRTCryptoHelpers.IBufferToStr(PublicKey);
-  NewKeys := not SameText(EditPublicKey.Text, PublicKeyAsStr);
-  if NewKeys then
-    EditPublicKey.Text := PublicKeyAsStr;
-  PrivateKey := fKeys.Export(
-    Core_CryptographicPrivateKeyBlobType.Pkcs8RawPrivateKeyInfo);
-  EditPrivateKey.Text := TWinRTCryptoHelpers.IBufferToStr(PrivateKey);
-  if NewKeys then
-    InitWithNewKeys
-  else
-    btnDecrypt.Enabled := (length(EditPrivateKey.Text) > 0) and
-      (length(EditEncrypted.Text) > 0);
+  fKeys := nil;
+  try
+    fKeys := SelectedAlgo.ImportKeyPair(
+      TWinRTCryptoHelpers.DecodeFromBase64(Keys),
+      Core_CryptographicPrivateKeyBlobType.Pkcs8RawPrivateKeyInfo);
+  except
+    on e: exception do
+      ShowError('Import private key failed: ' + e.Message);
+  end;
+  if assigned(fKeys) then
+  begin
+    PublicKey := fKeys.ExportPublicKey;
+    PublicKeyAsStr := TWinRTCryptoHelpers.EncodeAsBase64(PublicKey);
+    NewKeys := not SameText(EditPublicKey.Text, PublicKeyAsStr);
+    if NewKeys then
+      EditPublicKey.Text := PublicKeyAsStr;
+    PrivateKey := fKeys.Export(
+      Core_CryptographicPrivateKeyBlobType.Pkcs8RawPrivateKeyInfo);
+    EditPrivateKey.Text := TWinRTCryptoHelpers.EncodeAsBase64(PrivateKey);
+    if NewKeys then
+      InitWithNewKeys
+    else
+      btnDecrypt.Enabled := (length(EditPrivateKey.Text) > 0) and
+        (length(EditEncrypted.Text) > 0);
+    cboKeySize.ItemIndex :=
+      cboKeySize.Items.IndexOf(fKeys.KeySize.ToString);
+  end;
 end;
 
 procedure TfrmAsymmetricEncryption.btnLoadPubKeyClick(Sender: TObject);
@@ -225,7 +238,6 @@ var
   sl: TStringList;
   PubKey: string;
   PublicKey: IBuffer;
-  KeyBlob: IBuffer;
 begin
   sl := TStringList.Create;
   try
@@ -234,15 +246,25 @@ begin
   finally
     sl.Free;
   end;
-  KeyBlob := TWinRTCryptoHelpers.StrToIBuffer(PubKey);
-  fKeys := SelectedAlgo.ImportPublicKey(KeyBlob);
-  EditKeySize.Text := fKeys.KeySize.ToString;
-  PublicKey := fKeys.ExportPublicKey;
-  EditPublicKey.Text := TWinRTCryptoHelpers.IBufferToStr(PublicKey);
-  EditPrivateKey.Text := '';
-  btnEncrypt.Enabled := true;
-  btnLoadEncrypt.Enabled := false;
-  InitWithNewKeys;
+  fKeys := nil;
+  try
+    fKeys := SelectedAlgo.ImportPublicKey(
+      TWinRTCryptoHelpers.DecodeFromBase64(PubKey));
+  except
+    on e: exception do
+      ShowError('Import public key failed: ' + e.Message);
+  end;
+  if assigned(fKeys) then
+  begin
+    PublicKey := fKeys.ExportPublicKey;
+    EditPublicKey.Text := TWinRTCryptoHelpers.EncodeAsBase64(PublicKey);
+    EditPrivateKey.Text := '';
+    cboKeySize.ItemIndex :=
+      cboKeySize.Items.IndexOf(fKeys.KeySize.ToString);
+    btnEncrypt.Enabled := true;
+    btnLoadEncrypt.Enabled := false;
+    InitWithNewKeys;
+  end;
 end;
 {$ENDREGION}
 
@@ -288,7 +310,7 @@ function TfrmAsymmetricEncryption.SelectedAlgo:
 var
   Algo: HString;
 begin
-  case ComboBoxAlgo.ItemIndex of
+  case cboAlgo.ItemIndex of
     0: Algo := TCore_AsymmetricAlgorithmNames.RsaPkcs1;
     1: Algo := TCore_AsymmetricAlgorithmNames.RsaOaepSha1;
     2: Algo := TCore_AsymmetricAlgorithmNames.RsaOaepSha256;
@@ -300,17 +322,9 @@ begin
   result := TCore_AsymmetricKeyAlgorithmProvider.OpenAlgorithm(Algo);
 end;
 
-function TfrmAsymmetricEncryption.KeyLength: integer;
+function TfrmAsymmetricEncryption.SelectedKeyLength: integer;
 begin
-  case ComboBoxAlgo.ItemIndex of
-    0: result := 2048;
-    1: result := 2048;
-    2: result := 4096;
-    3: result := 4096;
-    4: result := 4096;
-    else
-      raise Exception.Create('Unknown Core_AsymmetricAlgorithmNames');
-  end;
+  result := StrToInt(cboKeySize.Text);
 end;
 {$ENDREGION}
 

@@ -325,13 +325,12 @@ object FrmHybridEncryption: TFrmHybridEncryption
     Style = csDropDownList
     ItemIndex = 2
     TabOrder = 18
-    Text = '2048'
+    Text = '256'
     OnChange = CheckKeySizes
     Items.Strings = (
-      '512'
-      '1024'
-      '2048'
-      '4096')
+      '128'
+      '192'
+      '256')
   end
   object cboAsymAlgo: TComboBox
     Left = 608
@@ -339,9 +338,9 @@ object FrmHybridEncryption: TFrmHybridEncryption
     Width = 273
     Height = 23
     Style = csDropDownList
-    ItemIndex = 0
+    ItemIndex = 2
     TabOrder = 19
-    Text = 'RsaPkcs1'
+    Text = 'RsaOaepSha256'
     OnChange = cboAlgosChange
     Items.Strings = (
       'RsaPkcs1'
@@ -356,15 +355,14 @@ object FrmHybridEncryption: TFrmHybridEncryption
     Width = 69
     Height = 23
     Style = csDropDownList
-    ItemIndex = 2
+    ItemIndex = 0
     TabOrder = 20
-    Text = '4096'
+    Text = '2048'
     OnChange = CheckKeySizes
     Items.Strings = (
-      '1024'
       '2048'
-      '4096'
-      '8192')
+      '3072'
+      '4096')
   end
   object edtIV: TEdit
     Left = 39

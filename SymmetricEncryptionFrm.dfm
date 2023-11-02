@@ -66,11 +66,11 @@ object FrmSymmetricEncryption: TFrmSymmetricEncryption
   object LabelIV: TLabel
     Left = 114
     Top = 213
-    Width = 16
+    Width = 10
     Height = 15
     Caption = 'IV'
   end
-  object ComboBoxAlgo: TComboBox
+  object cboAlgo: TComboBox
     Left = 112
     Top = 29
     Width = 347
@@ -80,7 +80,7 @@ object FrmSymmetricEncryption: TFrmSymmetricEncryption
     ItemIndex = 1
     TabOrder = 0
     Text = 'AesCbcPkcs7'
-    OnChange = ComboBoxAlgoChange
+    OnChange = cboAlgoChange
     Items.Strings = (
       'AesCbc'
       'AesCbcPkcs7'
@@ -192,6 +192,7 @@ object FrmSymmetricEncryption: TFrmSymmetricEncryption
     Caption = 'Load Key'
     TabOrder = 11
     OnClick = btnLoadKeyClick
+    ExplicitLeft = 508
   end
   object EditKeySize: TEdit
     Left = 256
@@ -210,14 +211,12 @@ object FrmSymmetricEncryption: TFrmSymmetricEncryption
     Anchors = [akRight]
     ItemIndex = 2
     TabOrder = 13
-    Text = '1024'
-    OnChange = ComboBoxAlgoChange
+    Text = '256'
+    OnChange = cboAlgoChange
     Items.Strings = (
-      '256'
-      '512'
-      '1024'
-      '2048'
-      '4096')
+      '128'
+      '192'
+      '256')
   end
   object EditIV: TEdit
     Left = 136

@@ -82,13 +82,12 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
     Style = csDropDownList
     ItemIndex = 2
     TabOrder = 1
-    Text = '2048'
+    Text = '256'
     OnChange = CheckKeySizes
     Items.Strings = (
-      '512'
-      '1024'
-      '2048'
-      '4096')
+      '128'
+      '192'
+      '256')
   end
   object cboAsymAlgo: TComboBox
     Left = 608
@@ -514,14 +513,13 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
     Height = 23
     Style = csDropDownList
     ItemIndex = 2
-    TabOrder = 4
-    Text = '4096'
+    TabOrder = 0
+    Text = '2048'
     OnChange = CheckKeySizes
     Items.Strings = (
-      '1024'
       '2048'
-      '4096'
-      '8192')
+      '3072'
+      '4096')
   end
   object gpbEncryptedMessage: TGroupBox
     Left = 18
