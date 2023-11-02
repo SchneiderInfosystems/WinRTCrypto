@@ -95,9 +95,9 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
     Width = 273
     Height = 23
     Style = csDropDownList
-    ItemIndex = 0
+    ItemIndex = 2
     TabOrder = 2
-    Text = 'RsaPkcs1'
+    Text = 'RsaOaepSha256'
     OnChange = cboAlgosChange
     Items.Strings = (
       'RsaPkcs1'
@@ -512,9 +512,9 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
     Width = 69
     Height = 23
     Style = csDropDownList
-    ItemIndex = 2
+    ItemIndex = 1
     TabOrder = 0
-    Text = '2048'
+    Text = '3072'
     OnChange = CheckKeySizes
     Items.Strings = (
       '2048'
