@@ -30,11 +30,10 @@ object FrmMultiRecipientHybridEncryptionSign: TFrmMultiRecipientHybridEncryption
   object LabelAlgo: TLabel
     Left = 16
     Top = 24
-    Width = 117
+    Width = 123
     Height = 15
     Anchors = [akLeft, akTop, akRight]
     Caption = 'Symmetrical Algorithm'
-    ExplicitWidth = 123
   end
   object LabelResult: TLabel
     Left = 39
@@ -112,11 +111,9 @@ object FrmMultiRecipientHybridEncryptionSign: TFrmMultiRecipientHybridEncryption
     Top = 65
     Width = 962
     Height = 348
-    ActivePage = TabDecryption
+    ActivePage = tabKeys
     Anchors = [akLeft, akTop, akRight, akBottom]
     TabOrder = 3
-    ExplicitWidth = 956
-    ExplicitHeight = 339
     object tabKeys: TTabSheet
       Caption = 'Key Management'
       DesignSize = (
@@ -205,7 +202,6 @@ object FrmMultiRecipientHybridEncryptionSign: TFrmMultiRecipientHybridEncryption
         Font.Style = []
         ParentFont = False
         TabOrder = 4
-        ExplicitWidth = 796
       end
       object edtPrivateKey: TEdit
         Left = 133
@@ -221,7 +217,6 @@ object FrmMultiRecipientHybridEncryptionSign: TFrmMultiRecipientHybridEncryption
         Font.Style = []
         ParentFont = False
         TabOrder = 5
-        ExplicitWidth = 796
       end
       object edtKeyName: TEdit
         Left = 133
@@ -390,7 +385,7 @@ object FrmMultiRecipientHybridEncryptionSign: TFrmMultiRecipientHybridEncryption
       object Label5: TLabel
         Left = 17
         Top = 190
-        Width = 130
+        Width = 115
         Height = 15
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Encrypted session key'
@@ -611,8 +606,6 @@ object FrmMultiRecipientHybridEncryptionSign: TFrmMultiRecipientHybridEncryption
     Anchors = [akLeft, akRight, akBottom]
     Caption = 'Encrypted Message'
     TabOrder = 5
-    ExplicitTop = 410
-    ExplicitWidth = 956
     DesignSize = (
       962
       206)
@@ -702,7 +695,6 @@ object FrmMultiRecipientHybridEncryptionSign: TFrmMultiRecipientHybridEncryption
       ReadOnly = True
       TabOrder = 2
       Text = 'edtEncryptedPayload'
-      ExplicitWidth = 926
     end
     object lstHeader: TListBox
       Left = 14
@@ -719,7 +711,6 @@ object FrmMultiRecipientHybridEncryptionSign: TFrmMultiRecipientHybridEncryption
       ItemHeight = 15
       ParentFont = False
       TabOrder = 3
-      ExplicitWidth = 926
     end
     object edtIV: TEdit
       Left = 29

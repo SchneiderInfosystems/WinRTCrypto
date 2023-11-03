@@ -76,7 +76,6 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 0
     TextHint = 'Clear text'
-    ExplicitWidth = 553
   end
   object btnEncrypt: TButton
     Left = 24
@@ -95,7 +94,6 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     Height = 23
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 2
-    ExplicitWidth = 553
   end
   object btnDecrypt: TButton
     Left = 24
@@ -134,7 +132,6 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     ReadOnly = True
     TabOrder = 5
     TextHint = 'resulting clear text'
-    ExplicitWidth = 559
   end
   object btnCreateKeys: TButton
     Left = 24
@@ -153,7 +150,6 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     Anchors = [akLeft, akTop, akRight]
     ReadOnly = True
     TabOrder = 7
-    ExplicitWidth = 457
   end
   object EditPrivateKey: TEdit
     Left = 120
@@ -162,7 +158,6 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     Height = 23
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 8
-    ExplicitWidth = 457
   end
   object btnSaveKeys: TButton
     Left = 353
@@ -174,7 +169,6 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     Enabled = False
     TabOrder = 9
     OnClick = btnSaveKeysClick
-    ExplicitLeft = 347
   end
   object btnSaveEncrypt: TButton
     Left = 427
@@ -207,7 +201,6 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     Caption = 'Load Keys'
     TabOrder = 12
     OnClick = btnLoadKeysClick
-    ExplicitLeft = 421
   end
   object btnLoadPubKey: TButton
     Left = 508
