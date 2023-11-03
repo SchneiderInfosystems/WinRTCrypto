@@ -32,7 +32,7 @@ For several recipients, the session key is encrypted asymmetrically with their p
 
 ![MultiRecipientHybridEncryption App in Action](MultiRecipientHybridEncryptionApp.png)
 
-# Hybrid encryption for several recipients of the same message with sender signature 
+# Hybrid encryption for several recipients with sender signature 
 
 The fiveth sample app expands the previous sample app by adding a sender signature to the message. 
 When decrypting, this signature is used to check whether the message was created by the sender with the public key known to me.  
