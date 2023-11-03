@@ -15,6 +15,9 @@
         <Projects Include="MultiRecipientHybridEncryption.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="MultiRecipientHybridEncryptionSign.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -59,14 +62,23 @@
     <Target Name="MultiRecipientHybridEncryption:Make">
         <MSBuild Projects="MultiRecipientHybridEncryption.dproj" Targets="Make"/>
     </Target>
+    <Target Name="MultiRecipientHybridEncryptionSign">
+        <MSBuild Projects="MultiRecipientHybridEncryptionSign.dproj"/>
+    </Target>
+    <Target Name="MultiRecipientHybridEncryptionSign:Clean">
+        <MSBuild Projects="MultiRecipientHybridEncryptionSign.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="MultiRecipientHybridEncryptionSign:Make">
+        <MSBuild Projects="MultiRecipientHybridEncryptionSign.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="AsymmetricEncryption;SymmetricEncryption;HybridEncryption;MultiRecipientHybridEncryption"/>
+        <CallTarget Targets="AsymmetricEncryption;SymmetricEncryption;HybridEncryption;MultiRecipientHybridEncryption;MultiRecipientHybridEncryptionSign"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="AsymmetricEncryption:Clean;SymmetricEncryption:Clean;HybridEncryption:Clean;MultiRecipientHybridEncryption:Clean"/>
+        <CallTarget Targets="AsymmetricEncryption:Clean;SymmetricEncryption:Clean;HybridEncryption:Clean;MultiRecipientHybridEncryption:Clean;MultiRecipientHybridEncryptionSign:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="AsymmetricEncryption:Make;SymmetricEncryption:Make;HybridEncryption:Make;MultiRecipientHybridEncryption:Make"/>
+        <CallTarget Targets="AsymmetricEncryption:Make;SymmetricEncryption:Make;HybridEncryption:Make;MultiRecipientHybridEncryption:Make;MultiRecipientHybridEncryptionSign:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
