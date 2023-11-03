@@ -102,6 +102,7 @@
             <Form>FrmMultiRecipientHybridEncryption</Form>
             <FormType>dfm</FormType>
         </DCCReference>
+        <DCCReference Include="Winapi.Security.Helpers.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

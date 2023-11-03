@@ -25,7 +25,8 @@ program MultiRecipientHybridEncryption;
 
 uses
   Vcl.Forms,
-  MultiRecipientHybridEncryptionFrm in 'MultiRecipientHybridEncryptionFrm.pas' {FrmMultiRecipientHybridEncryption};
+  MultiRecipientHybridEncryptionFrm in 'MultiRecipientHybridEncryptionFrm.pas' {FrmMultiRecipientHybridEncryption},
+  Winapi.Security.Helpers in 'Winapi.Security.Helpers.pas';
 
 {$R *.res}
 
