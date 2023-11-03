@@ -103,6 +103,7 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="Winapi.Security.Helpers.pas"/>
+        <None Include="README.md"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -123,8 +124,16 @@
                 <Source>
                     <Source Name="MainSource">SymmetricEncryption.dpr</Source>
                 </Source>
+                <WelcomePageFile Path="README.md"/>
+                <WelcomePageFolder/>
             </Delphi.Personality>
             <Deployment Version="4">
+                <DeployFile LocalName="README.md" Configuration="Debug" Class="ProjectFile">
+                    <Platform Name="Win32">
+                        <RemoteDir>.\</RemoteDir>
+                        <Overwrite>true</Overwrite>
+                    </Platform>
+                </DeployFile>
                 <DeployFile LocalName="Win32\Debug\SymmetricEncryption.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
                         <RemoteName>SymmetricEncryption.exe</RemoteName>
