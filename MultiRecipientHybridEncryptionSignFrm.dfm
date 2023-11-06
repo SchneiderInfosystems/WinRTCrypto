@@ -274,6 +274,7 @@ object FrmMultiRecipientHybridEncryptionSign: TFrmMultiRecipientHybridEncryption
         Top = 239
         Width = 105
         Height = 15
+        Anchors = [akLeft, akBottom]
         Caption = 'Sender'#39's Private Key'
       end
       object btnEncrypt: TButton
@@ -357,7 +358,7 @@ object FrmMultiRecipientHybridEncryptionSign: TFrmMultiRecipientHybridEncryption
         Top = 235
         Width = 461
         Height = 23
-        Anchors = [akLeft, akTop, akRight]
+        Anchors = [akLeft, akRight, akBottom]
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -12
@@ -372,6 +373,7 @@ object FrmMultiRecipientHybridEncryptionSign: TFrmMultiRecipientHybridEncryption
         Top = 234
         Width = 201
         Height = 25
+        Anchors = [akRight, akBottom]
         Caption = 'Add created Private Key as Sender'
         TabOrder = 8
         OnClick = btnAddCreatedKeyAsSenderClick
@@ -563,6 +565,7 @@ object FrmMultiRecipientHybridEncryptionSign: TFrmMultiRecipientHybridEncryption
         Top = 150
         Width = 172
         Height = 25
+        Anchors = [akTop, akRight]
         Caption = 'Load Public Key from Sender'
         TabOrder = 9
         OnClick = btnLoadSenderPublicKeyClick
@@ -572,7 +575,7 @@ object FrmMultiRecipientHybridEncryptionSign: TFrmMultiRecipientHybridEncryption
         Top = 151
         Width = 115
         Height = 23
-        Anchors = [akLeft, akTop, akRight]
+        Anchors = [akTop, akRight]
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -12
