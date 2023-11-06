@@ -355,9 +355,9 @@ object FrmHybridEncryption: TFrmHybridEncryption
     Width = 69
     Height = 23
     Style = csDropDownList
-    ItemIndex = 0
+    ItemIndex = 1
     TabOrder = 20
-    Text = '2048'
+    Text = '3072'
     OnChange = CheckKeySizes
     Items.Strings = (
       '2048'
