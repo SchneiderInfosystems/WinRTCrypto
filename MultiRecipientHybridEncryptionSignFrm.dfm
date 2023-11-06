@@ -65,7 +65,7 @@ object FrmMultiRecipientHybridEncryptionSign: TFrmMultiRecipientHybridEncryption
     Height = 23
     Style = csDropDownList
     ItemIndex = 1
-    TabOrder = 4
+    TabOrder = 0
     Text = 'AesCbcPkcs7'
     OnChange = cboAlgosChange
     Items.Strings = (
@@ -347,6 +347,7 @@ object FrmMultiRecipientHybridEncryptionSign: TFrmMultiRecipientHybridEncryption
         Top = 187
         Width = 201
         Height = 25
+        Anchors = [akLeft, akBottom]
         Caption = 'Add created Public Key as Recipient'
         TabOrder = 6
         OnClick = btnAddCreatedKeyAsRecipientClick

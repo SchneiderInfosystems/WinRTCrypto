@@ -340,6 +340,7 @@ object FrmMultiRecipientHybridEncryption: TFrmMultiRecipientHybridEncryption
         Top = 187
         Width = 201
         Height = 25
+        Anchors = [akLeft, akBottom]
         Caption = 'Add created Public Key as Recipient'
         TabOrder = 6
         OnClick = btnAddCreatedKeyAsRecipientClick
