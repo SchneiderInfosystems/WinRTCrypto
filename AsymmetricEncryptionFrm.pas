@@ -55,6 +55,7 @@ type
     btnLoadPubKey: TButton;
     cboKeySize: TComboBox;
     LabelKeySize: TLabel;
+    lblChiffreLen: TLabel;
     procedure btnEncryptClick(Sender: TObject);
     procedure btnDecryptClick(Sender: TObject);
     procedure btnCreateKeysClick(Sender: TObject);
@@ -67,7 +68,6 @@ type
     procedure FormCreate(Sender: TObject);
   private
     fDataFolder: string;
-    fKeys: Core_ICryptographicKey;
     function SelectedAlgo: Core_IAsymmetricKeyAlgorithmProvider;
     function SelectedKeyLength: integer;
     procedure InitWithNewKeys;
@@ -156,34 +156,33 @@ end;
 {$REGION 'Key Management'}
 procedure TfrmAsymmetricEncryption.btnCreateKeysClick(Sender: TObject);
 var
+  Keys: Core_ICryptographicKey;
   PublicKey, PrivateKey: IBuffer;
 begin
   Screen.Cursor := crHourGlass;
   try
-    fKeys := SelectedAlgo.CreateKeyPair(SelectedKeyLength);
-    PublicKey := fKeys.ExportPublicKey;
+    Keys := SelectedAlgo.CreateKeyPair(SelectedKeyLength);
+    PublicKey := Keys.ExportPublicKey;
     EditPublicKey.Text := TWinRTCryptoHelpers.EncodeAsBase64(PublicKey);
     PrivateKey :=
-      fKeys.Export(Core_CryptographicPrivateKeyBlobType.Pkcs8RawPrivateKeyInfo);
+      Keys.Export(Core_CryptographicPrivateKeyBlobType.Pkcs8RawPrivateKeyInfo);
     EditPrivateKey.Text := TWinRTCryptoHelpers.EncodeAsBase64(PrivateKey);
     InitWithNewKeys;
   finally
+    Keys := nil;
     Screen.Cursor := crDefault;
   end;
 end;
 
 procedure TfrmAsymmetricEncryption.btnSaveKeysClick(Sender: TObject);
 var
-  PublicKey, PrivateKey: IBuffer;
   sl: TStringList;
 begin
   sl := TStringList.Create;
   try
-    PublicKey := fKeys.ExportPublicKey;
-    sl.Text := TWinRTCryptoHelpers.EncodeAsBase64(PublicKey);
+    sl.Text := EditPublicKey.Text;
     sl.SaveToFile(fDataFolder + 'Public.key');
-    PrivateKey := fKeys.Export(Core_CryptographicPrivateKeyBlobType.Pkcs8RawPrivateKeyInfo);
-    sl.Text := TWinRTCryptoHelpers.EncodeAsBase64(PrivateKey);
+    sl.Text := EditPrivateKey.Text ;
     sl.SaveToFile(fDataFolder + 'PrivateAndPublic.key');
   finally
     sl.Free;
@@ -193,6 +192,7 @@ end;
 procedure TfrmAsymmetricEncryption.btnLoadKeysClick(Sender: TObject);
 var
   sl: TStringList;
+  PersonalKey: Core_ICryptographicKey;
   Keys, PublicKeyAsStr: string;
   PublicKey, PrivateKey: IBuffer;
   NewKeys: boolean;
@@ -204,23 +204,23 @@ begin
   finally
     sl.Free;
   end;
-  fKeys := nil;
+  PersonalKey := nil;
   try
-    fKeys := SelectedAlgo.ImportKeyPair(
+    PersonalKey := SelectedAlgo.ImportKeyPair(
       TWinRTCryptoHelpers.DecodeFromBase64(Keys),
       Core_CryptographicPrivateKeyBlobType.Pkcs8RawPrivateKeyInfo);
   except
     on e: exception do
       ShowError('Import private key failed: ' + e.Message);
   end;
-  if assigned(fKeys) then
+  if assigned(PersonalKey) then
   begin
-    PublicKey := fKeys.ExportPublicKey;
+    PublicKey := PersonalKey.ExportPublicKey;
     PublicKeyAsStr := TWinRTCryptoHelpers.EncodeAsBase64(PublicKey);
     NewKeys := not SameText(EditPublicKey.Text, PublicKeyAsStr);
     if NewKeys then
       EditPublicKey.Text := PublicKeyAsStr;
-    PrivateKey := fKeys.Export(
+    PrivateKey := PersonalKey.Export(
       Core_CryptographicPrivateKeyBlobType.Pkcs8RawPrivateKeyInfo);
     EditPrivateKey.Text := TWinRTCryptoHelpers.EncodeAsBase64(PrivateKey);
     if NewKeys then
@@ -229,7 +229,7 @@ begin
       btnDecrypt.Enabled := (length(EditPrivateKey.Text) > 0) and
         (length(EditEncrypted.Text) > 0);
     cboKeySize.ItemIndex :=
-      cboKeySize.Items.IndexOf(fKeys.KeySize.ToString);
+      cboKeySize.Items.IndexOf(PersonalKey.KeySize.ToString);
   end;
 end;
 
@@ -238,6 +238,7 @@ var
   sl: TStringList;
   PubKey: string;
   PublicKey: IBuffer;
+  PersonalKey: Core_ICryptographicKey;
 begin
   sl := TStringList.Create;
   try
@@ -246,21 +247,21 @@ begin
   finally
     sl.Free;
   end;
-  fKeys := nil;
+  PersonalKey := nil;
   try
-    fKeys := SelectedAlgo.ImportPublicKey(
+    PersonalKey := SelectedAlgo.ImportPublicKey(
       TWinRTCryptoHelpers.DecodeFromBase64(PubKey));
   except
     on e: exception do
       ShowError('Import public key failed: ' + e.Message);
   end;
-  if assigned(fKeys) then
+  if assigned(PersonalKey) then
   begin
-    PublicKey := fKeys.ExportPublicKey;
+    PublicKey := PersonalKey.ExportPublicKey;
     EditPublicKey.Text := TWinRTCryptoHelpers.EncodeAsBase64(PublicKey);
     EditPrivateKey.Text := '';
     cboKeySize.ItemIndex :=
-      cboKeySize.Items.IndexOf(fKeys.KeySize.ToString);
+      cboKeySize.Items.IndexOf(PersonalKey.KeySize.ToString);
     btnEncrypt.Enabled := true;
     btnLoadEncrypt.Enabled := false;
     InitWithNewKeys;
@@ -272,11 +273,21 @@ end;
 procedure TfrmAsymmetricEncryption.btnEncryptClick(Sender: TObject);
 var
   cleardata, encrypted: IBuffer;
+  PersonalKey: Core_ICryptographicKey;
 begin
+  try
+    PersonalKey := SelectedAlgo.ImportPublicKey(
+      TWinRTCryptoHelpers.DecodeFromBase64(EditPublicKey.Text));
+  except
+    on e: exception do
+      ShowError('Import public key failed: ' + e.Message);
+  end;
+  ClearResult;
   clearData := TWinRTCryptoHelpers.StrToIBuffer(EditClear.Text);
   try
-    encrypted := TCore_CryptographicEngine.Encrypt(fKeys, cleardata, nil);
+    encrypted := TCore_CryptographicEngine.Encrypt(PersonalKey, cleardata, nil);
     EditEncrypted.Text := TWinRTCryptoHelpers.EncodeAsBase64(encrypted);
+    lblChiffreLen.Caption := Format('Size %d bytes', [encrypted.Length]);
     btnSaveEncrypt.Enabled := true;
     btnDecrypt.Enabled := length(EditPrivateKey.Text) > 0;
   except
@@ -288,10 +299,19 @@ end;
 procedure TfrmAsymmetricEncryption.btnDecryptClick(Sender: TObject);
 var
   cleardata, encrypted: IBuffer;
+  PersonalKey: Core_ICryptographicKey;
 begin
+  try
+    PersonalKey := SelectedAlgo.ImportKeyPair(
+      TWinRTCryptoHelpers.DecodeFromBase64(EditPrivateKey.Text),
+      Core_CryptographicPrivateKeyBlobType.Pkcs8RawPrivateKeyInfo);
+  except
+    on e: exception do
+      ShowError('Import private key failed: ' + e.Message);
+  end;
   encrypted := TWinRTCryptoHelpers.DecodeFromBase64(EditEncrypted.Text);
   try
-    cleardata := TCore_CryptographicEngine.Decrypt(fKeys, encrypted, nil);
+    cleardata := TCore_CryptographicEngine.Decrypt(PersonalKey, encrypted, nil);
     EditResult.Text := TWinRTCryptoHelpers.IBufferToStr(cleardata);
     if SameText(EditClear.Text, EditResult.Text) then
       ShowResult(

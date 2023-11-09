@@ -66,7 +66,17 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     Top = 32
     Width = 71
     Height = 15
+    Anchors = [akTop, akRight]
     Caption = 'Key size [bits]'
+  end
+  object lblChiffreLen: TLabel
+    Left = 448
+    Top = 293
+    Width = 129
+    Height = 15
+    Alignment = taRightJustify
+    Anchors = [akTop, akRight]
+    AutoSize = False
   end
   object EditClear: TEdit
     Left = 24
@@ -148,7 +158,6 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     Width = 463
     Height = 23
     Anchors = [akLeft, akTop, akRight]
-    ReadOnly = True
     TabOrder = 7
   end
   object EditPrivateKey: TEdit
@@ -218,6 +227,7 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     Width = 69
     Height = 23
     Style = csDropDownList
+    Anchors = [akTop, akRight]
     ItemIndex = 0
     TabOrder = 14
     Text = '2048'
