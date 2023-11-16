@@ -159,6 +159,7 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     Height = 23
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 7
+    OnChange = EditKeyChange
   end
   object EditPrivateKey: TEdit
     Left = 120
@@ -167,6 +168,7 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     Height = 23
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 8
+    OnChange = EditKeyChange
   end
   object btnSaveKeys: TButton
     Left = 353

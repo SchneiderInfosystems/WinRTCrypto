@@ -64,6 +64,7 @@ type
     procedure btnLoadEncryptClick(Sender: TObject);
     procedure btnSaveKeyClick(Sender: TObject);
     procedure btnLoadKeyClick(Sender: TObject);
+    procedure EditKeyChange(Sender: TObject);
   private
     fDataFolder: string;
     function SelectedAlgo: Core_ISymmetricKeyAlgorithmProvider;
@@ -149,6 +150,11 @@ begin
   ShapeResult.Brush.Color := clBtnFace;
   LabelResult.Caption := '';
 end;
+procedure TFrmSymmetricEncryption.EditKeyChange(Sender: TObject);
+begin
+  EditKey.Color := clWindow;
+end;
+
 {$ENDREGION}
 
 {$REGION 'Key Management'}
@@ -160,6 +166,7 @@ begin
   KeyMat := TCryptographicBuffer.GenerateRandom(SelectKeySizeInBytes);
   EditKey.Text := TWinRTCryptoHelpers.EncodeAsBase64(KeyMat);
   Key := SelectedAlgo.CreateSymmetricKey(KeyMat);
+  EditKey.Color := clAqua;
   EditKeySize.Text := Key.KeySize.ToString;
   InitWithNewKeys;
 end;
@@ -187,6 +194,7 @@ begin
   try
     sl.LoadFromFile(fDataFolder + 'Private.key');
     EditKey.Text := sl.Text;
+    EditKey.Color := clAqua;
     KeyMat := TWinRTCryptoHelpers.DecodeFromBase64(sl.Text);
     Key := SelectedAlgo.CreateSymmetricKey(KeyMat);
     EditKeySize.Text := Key.KeySize.ToString;
@@ -212,7 +220,7 @@ begin
     if ClearData.Length mod SelectedAlgo.BlockLength <> 0 then
     begin
       ShowWarning(
-        'Message length must be multiple of block length: Message padded now');
+        'Message length must be multiple of block length: Message is padded now');
       EditClear.Text := EditClear.Text + StringOfChar('_',
         SelectedAlgo.BlockLength - ClearData.Length mod SelectedAlgo.BlockLength);
       // A better solution would be to use a message length and a random pad
@@ -229,6 +237,7 @@ begin
     Encrypted := TCore_CryptographicEngine.Encrypt(Key, ClearData, IV);
     EditEncrypted.Text := TWinRTCryptoHelpers.EncodeAsBase64(Encrypted);
     EditIV.Text := TWinRTCryptoHelpers.EncodeAsBase64(IV);
+    EditKey.Color := clAqua;
     btnSaveEncrypt.Enabled := true;
     btnDecrypt.Enabled := true;
   except
@@ -249,6 +258,7 @@ begin
       TWinRTCryptoHelpers.DecodeFromBase64(EditKey.Text));
     cleardata := TCore_CryptographicEngine.Decrypt(Key, encrypted, IV);
     EditResult.Text := TWinRTCryptoHelpers.IBufferToStr(cleardata);
+    EditKey.Color := clAqua;
     if SameText(EditClear.Text, EditResult.Text) then
       ShowResult(
         'Passed: Resulting clear text is identical to starting clear text')

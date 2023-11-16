@@ -66,6 +66,7 @@ type
     procedure btnLoadPubKeyClick(Sender: TObject);
     procedure cboAlgoChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure EditKeyChange(Sender: TObject);
   private
     fDataFolder: string;
     function SelectedAlgo: Core_IAsymmetricKeyAlgorithmProvider;
@@ -151,6 +152,11 @@ begin
   ShapeResult.Brush.Color := clBtnFace;
   LabelResult.Caption := '';
 end;
+procedure TfrmAsymmetricEncryption.EditKeyChange(Sender: TObject);
+begin
+  TEdit(Sender).Color := clWindow;
+end;
+
 {$ENDREGION}
 
 {$REGION 'Key Management'}
@@ -167,6 +173,8 @@ begin
     PrivateKey :=
       Keys.Export(Core_CryptographicPrivateKeyBlobType.Pkcs8RawPrivateKeyInfo);
     EditPrivateKey.Text := TWinRTCryptoHelpers.EncodeAsBase64(PrivateKey);
+    EditPublicKey.Color := clAqua;
+    EditPrivateKey.Color := clAqua;
     InitWithNewKeys;
   finally
     Keys := nil;
@@ -223,6 +231,8 @@ begin
     PrivateKey := PersonalKey.Export(
       Core_CryptographicPrivateKeyBlobType.Pkcs8RawPrivateKeyInfo);
     EditPrivateKey.Text := TWinRTCryptoHelpers.EncodeAsBase64(PrivateKey);
+    EditPublicKey.Color := clAqua;
+    EditPrivateKey.Color := clAqua;
     if NewKeys then
       InitWithNewKeys
     else
@@ -260,6 +270,8 @@ begin
     PublicKey := PersonalKey.ExportPublicKey;
     EditPublicKey.Text := TWinRTCryptoHelpers.EncodeAsBase64(PublicKey);
     EditPrivateKey.Text := '';
+    EditPublicKey.Color := clAqua;
+    EditPrivateKey.Color := clWindow;
     cboKeySize.ItemIndex :=
       cboKeySize.Items.IndexOf(PersonalKey.KeySize.ToString);
     btnEncrypt.Enabled := true;
@@ -278,6 +290,8 @@ begin
   try
     PersonalKey := SelectedAlgo.ImportPublicKey(
       TWinRTCryptoHelpers.DecodeFromBase64(EditPublicKey.Text));
+    EditPublicKey.Color := clAqua;
+    EditPrivateKey.Color := clWindow;
   except
     on e: exception do
       ShowError('Import public key failed: ' + e.Message);
@@ -305,6 +319,8 @@ begin
     PersonalKey := SelectedAlgo.ImportKeyPair(
       TWinRTCryptoHelpers.DecodeFromBase64(EditPrivateKey.Text),
       Core_CryptographicPrivateKeyBlobType.Pkcs8RawPrivateKeyInfo);
+    EditPublicKey.Color := clWindow;
+    EditPrivateKey.Color := clAqua;
   except
     on e: exception do
       ShowError('Import private key failed: ' + e.Message);

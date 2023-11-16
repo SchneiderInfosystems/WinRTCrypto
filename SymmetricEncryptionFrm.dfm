@@ -38,6 +38,7 @@ object FrmSymmetricEncryption: TFrmSymmetricEncryption
     Width = 19
     Height = 15
     Anchors = [akLeft, akTop, akRight]
+    AutoSize = False
     Caption = 'Key'
   end
   object LabelResult: TLabel
@@ -103,6 +104,7 @@ object FrmSymmetricEncryption: TFrmSymmetricEncryption
     Height = 23
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 2
+    OnChange = EditKeyChange
   end
   object EditClear: TEdit
     Left = 24
