@@ -102,7 +102,6 @@ object FrmSymmetricEncryption: TFrmSymmetricEncryption
     Width = 475
     Height = 23
     Anchors = [akLeft, akTop, akRight]
-    ReadOnly = True
     TabOrder = 2
   end
   object EditClear: TEdit

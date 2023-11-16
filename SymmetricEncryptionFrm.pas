@@ -66,7 +66,6 @@ type
     procedure btnLoadKeyClick(Sender: TObject);
   private
     fDataFolder: string;
-    fKey: Core_ICryptographicKey;
     function SelectedAlgo: Core_ISymmetricKeyAlgorithmProvider;
     function SelectKeySizeInBytes: integer;
     function SelectAlgoRequiresIV: boolean;
@@ -155,12 +154,13 @@ end;
 {$REGION 'Key Management'}
 procedure TFrmSymmetricEncryption.btnCreateKeyClick(Sender: TObject);
 var
-  Key: IBuffer;
+  KeyMat: IBuffer;
+  Key: Core_ICryptographicKey;
 begin
-  Key := TCryptographicBuffer.GenerateRandom(SelectKeySizeInBytes);
-  EditKey.Text := TWinRTCryptoHelpers.EncodeAsBase64(Key);
-  fKey := SelectedAlgo.CreateSymmetricKey(Key);
-  EditKeySize.Text := fKey.KeySize.ToString;
+  KeyMat := TCryptographicBuffer.GenerateRandom(SelectKeySizeInBytes);
+  EditKey.Text := TWinRTCryptoHelpers.EncodeAsBase64(KeyMat);
+  Key := SelectedAlgo.CreateSymmetricKey(KeyMat);
+  EditKeySize.Text := Key.KeySize.ToString;
   InitWithNewKeys;
 end;
 
@@ -180,15 +180,16 @@ end;
 procedure TFrmSymmetricEncryption.btnLoadKeyClick(Sender: TObject);
 var
   sl: TStringList;
-  Key: IBuffer;
+  KeyMat: IBuffer;
+  Key: Core_ICryptographicKey;
 begin
   sl := TStringList.Create;
   try
     sl.LoadFromFile(fDataFolder + 'Private.key');
     EditKey.Text := sl.Text;
-    Key := TWinRTCryptoHelpers.DecodeFromBase64(sl.Text);
-    fKey := SelectedAlgo.CreateSymmetricKey(Key);
-    EditKeySize.Text := fKey.KeySize.ToString;
+    KeyMat := TWinRTCryptoHelpers.DecodeFromBase64(sl.Text);
+    Key := SelectedAlgo.CreateSymmetricKey(KeyMat);
+    EditKeySize.Text := Key.KeySize.ToString;
   finally
     sl.Free;
   end;
@@ -199,6 +200,7 @@ end;
 {$REGION 'Asymmetric Encrypt/Decryption'}
 procedure TFrmSymmetricEncryption.btnEncryptClick(Sender: TObject);
 var
+  Key: Core_ICryptographicKey;
   ClearData, Encrypted, IV: IBuffer;
 begin
   ClearData := TWinRTCryptoHelpers.StrToIBuffer(EditClear.Text);
@@ -218,11 +220,13 @@ begin
     end;
   end;
   try
+    Key := SelectedAlgo.CreateSymmetricKey(
+      TWinRTCryptoHelpers.DecodeFromBase64(EditKey.Text));
     if SelectAlgoRequiresIV then
       IV := TCryptographicBuffer.GenerateRandom(SelectedAlgo.BlockLength)
     else
       IV := nil;
-    Encrypted := TCore_CryptographicEngine.Encrypt(fKey, ClearData, IV);
+    Encrypted := TCore_CryptographicEngine.Encrypt(Key, ClearData, IV);
     EditEncrypted.Text := TWinRTCryptoHelpers.EncodeAsBase64(Encrypted);
     EditIV.Text := TWinRTCryptoHelpers.EncodeAsBase64(IV);
     btnSaveEncrypt.Enabled := true;
@@ -235,12 +239,15 @@ end;
 
 procedure TFrmSymmetricEncryption.btnDecryptClick(Sender: TObject);
 var
+  Key: Core_ICryptographicKey;
   cleardata, encrypted, IV: IBuffer;
 begin
   encrypted := TWinRTCryptoHelpers.DecodeFromBase64(EditEncrypted.Text);
   IV := TWinRTCryptoHelpers.DecodeFromBase64(EditIV.Text);
   try
-    cleardata := TCore_CryptographicEngine.Decrypt(fKey, encrypted, IV);
+    Key := SelectedAlgo.CreateSymmetricKey(
+      TWinRTCryptoHelpers.DecodeFromBase64(EditKey.Text));
+    cleardata := TCore_CryptographicEngine.Decrypt(Key, encrypted, IV);
     EditResult.Text := TWinRTCryptoHelpers.IBufferToStr(cleardata);
     if SameText(EditClear.Text, EditResult.Text) then
       ShowResult(
