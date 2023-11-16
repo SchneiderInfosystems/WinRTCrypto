@@ -167,7 +167,7 @@ begin
   btnEncrypt.Enabled := IsPublicKeyExists and
     (length(MemoClear.Text) > 0);
   if IsSamePublicKey then
-    edtUsedPublicKey.Color := clLime
+    edtUsedPublicKey.Color := clAqua
   else
     edtUsedPublicKey.Color := clWindow;
   btnDecrypt.Enabled := IsPrivateKeyExists and IsSamePublicKey and

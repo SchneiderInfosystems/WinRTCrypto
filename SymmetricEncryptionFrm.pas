@@ -205,7 +205,7 @@ begin
 end;
 {$ENDREGION}
 
-{$REGION 'Asymmetric Encrypt/Decryption'}
+{$REGION 'Symmetric Encrypt/Decryption'}
 procedure TFrmSymmetricEncryption.btnEncryptClick(Sender: TObject);
 var
   Key: Core_ICryptographicKey;

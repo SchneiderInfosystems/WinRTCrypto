@@ -1,24 +1,29 @@
 # WinRTCrypto
-Five sample applications written for **Delphi** give an introduction to symmetric encryption with AES, asymmetric encryption with RSA and hybrid encryption as a combination of both encryption alorithms and sign and verification. 
-All code based on pure Delphi using the _WinApi.WinRT_ and _Winapi.Security.Cryptography_ library delivered since Delphi 10 Seattle. No additional 3rd party library are required. 
-This code runs on Windows only and therefore uses the VCL.
+Five sample applications written for **Delphi** provide an introduction to symmetric encryption with AES, asymmetric encryption with RSA and hybrid encryption as a combination of both encryption alorithms and sign and verification. 
+All code based on pure Delphi using the _WinApi.WinRT_ and _Winapi.Security.Cryptography_ library delivered since Delphi 10 Seattle. No additional 3rd-party libraries are required. 
+This code only runs on Windows  and therefore uses the VCL.
 
 # Introduction to asymmetric encryption with RSA algorithms
 
-This first sample app shows how easy it is to use asymmetric encryption for small messages.
+This first sample app demonstrates how easy it is to use asymmetric encryption for small messages.
+For this purpose, the application provides different variants of the RSA algorithm. The key length can also be selected.
+The maximum message length is limited by the length of the key.
 
 ![AsymmetricEncryption App in Action](AsymmetricEncryption.png)
 
 # Introduction to symmetric encryption with AES algorithms
 
-This second sample app shows how easy it is to use symmetric encryption for longer real messages.
+This second sample app demonstrates how easy it is to use symmetric encryption for longer real messages.
+For this purpose, the application provides different variants of the AES algorithm. The key length can also be selected.
+For CBC block encryption, an additional initial vector is required, which must be re-ciced for each encryption.
+The message length has to be a multiple of the block length. To do this, the message needs to be padded. The PKCS7 padding algorithm makes this safer than using a constant character as a filler.
 
 ![SymmetricEncryption App in Action](SymmetricEncryption.png)
 
 # Combination of symmetric and asymmetric encryption within the hybrid encryption 
 
-This third sample app shows how to encrypt a message with the public key. 
-The appropriate private key is used for subsequent decryption. 
+This third sample app demonstrates how to encrypt a message with the public key of the receiver of this message. 
+The appropriate private key of the receiver is used for subsequent decryption. 
 With each encryption, a new session key is generated to symmetrically encrypt the entire message. 
 Only this session key is encrypted and decrypted by asymmetric algorithms. 
 
