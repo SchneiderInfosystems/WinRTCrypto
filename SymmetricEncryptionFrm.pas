@@ -55,6 +55,9 @@ type
     cboKeySize: TComboBox;
     EditIV: TEdit;
     LabelIV: TLabel;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
     procedure btnCreateKeyClick(Sender: TObject);
     procedure btnEncryptClick(Sender: TObject);
     procedure btnDecryptClick(Sender: TObject);
@@ -65,12 +68,15 @@ type
     procedure btnSaveKeyClick(Sender: TObject);
     procedure btnLoadKeyClick(Sender: TObject);
     procedure EditKeyChange(Sender: TObject);
+    procedure EditIVChange(Sender: TObject);
+    procedure EditEncryptedChange(Sender: TObject);
   private
     fDataFolder: string;
     function SelectedAlgo: Core_ISymmetricKeyAlgorithmProvider;
     function SelectKeySizeInBytes: integer;
     function SelectAlgoRequiresIV: boolean;
     function SelectAlgoRequiresPadding: boolean;
+    procedure CheckButtons;
     procedure InitWithNewKeys;
     procedure ShowError(const Msg: string);
     procedure ShowWarning(const Msg: string);
@@ -150,9 +156,27 @@ begin
   ShapeResult.Brush.Color := clBtnFace;
   LabelResult.Caption := '';
 end;
+
+procedure TFrmSymmetricEncryption.EditEncryptedChange(Sender: TObject);
+begin
+  CheckButtons;
+end;
+
+procedure TFrmSymmetricEncryption.EditIVChange(Sender: TObject);
+begin
+  CheckButtons;
+end;
+
 procedure TFrmSymmetricEncryption.EditKeyChange(Sender: TObject);
 begin
   EditKey.Color := clWindow;
+  CheckButtons;
+end;
+
+procedure TFrmSymmetricEncryption.CheckButtons;
+begin
+  btnDecrypt.Enabled := (length(EditEncrypted.Text) > 0) and
+    (length(EditIV.Text) > 0) and (length(EditEncrypted.Text) > 0);
 end;
 
 {$ENDREGION}

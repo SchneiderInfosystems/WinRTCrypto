@@ -56,6 +56,9 @@ type
     cboKeySize: TComboBox;
     LabelKeySize: TLabel;
     lblChiffreLen: TLabel;
+    Label1: TLabel;
+    Label2: TLabel;
+    Label3: TLabel;
     procedure btnEncryptClick(Sender: TObject);
     procedure btnDecryptClick(Sender: TObject);
     procedure btnCreateKeysClick(Sender: TObject);
@@ -67,11 +70,13 @@ type
     procedure cboAlgoChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure EditKeyChange(Sender: TObject);
+    procedure EditEncryptedChange(Sender: TObject);
   private
     fDataFolder: string;
     function SelectedAlgo: Core_IAsymmetricKeyAlgorithmProvider;
     function SelectedKeyLength: integer;
     procedure InitWithNewKeys;
+    procedure CheckButtons;
     procedure ShowError(const Msg: string);
     procedure ShowWarning(const Msg: string);
     procedure ShowResult(const Msg: string);
@@ -152,9 +157,22 @@ begin
   ShapeResult.Brush.Color := clBtnFace;
   LabelResult.Caption := '';
 end;
+
+procedure TfrmAsymmetricEncryption.EditEncryptedChange(Sender: TObject);
+begin
+  CheckButtons;
+end;
+
 procedure TfrmAsymmetricEncryption.EditKeyChange(Sender: TObject);
 begin
   TEdit(Sender).Color := clWindow;
+  CheckButtons;
+end;
+
+procedure TfrmAsymmetricEncryption.CheckButtons;
+begin
+  btnDecrypt.Enabled := (length(EditPrivateKey.Text) > 0) and
+    (length(EditEncrypted.Text) > 0);
 end;
 
 {$ENDREGION}

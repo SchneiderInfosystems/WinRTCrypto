@@ -71,6 +71,27 @@ object FrmSymmetricEncryption: TFrmSymmetricEncryption
     Height = 15
     Caption = 'IV'
   end
+  object Label1: TLabel
+    Left = 24
+    Top = 139
+    Width = 51
+    Height = 15
+    Caption = 'Clear Text'
+  end
+  object Label2: TLabel
+    Left = 24
+    Top = 239
+    Width = 36
+    Height = 15
+    Caption = 'Chiffre'
+  end
+  object Label3: TLabel
+    Left = 24
+    Top = 319
+    Width = 103
+    Height = 15
+    Caption = 'Resulting Clear Text'
+  end
   object cboAlgo: TComboBox
     Left = 112
     Top = 29
@@ -87,6 +108,7 @@ object FrmSymmetricEncryption: TFrmSymmetricEncryption
       'AesCbcPkcs7'
       'AesEcb'
       'AesEcbPkcs7')
+    ExplicitWidth = 341
   end
   object btnCreateKey: TButton
     Left = 24
@@ -105,6 +127,7 @@ object FrmSymmetricEncryption: TFrmSymmetricEncryption
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 2
     OnChange = EditKeyChange
+    ExplicitWidth = 469
   end
   object EditClear: TEdit
     Left = 24
@@ -114,6 +137,7 @@ object FrmSymmetricEncryption: TFrmSymmetricEncryption
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 3
     TextHint = 'Clear text'
+    ExplicitWidth = 559
   end
   object btnEncrypt: TButton
     Left = 24
@@ -132,10 +156,12 @@ object FrmSymmetricEncryption: TFrmSymmetricEncryption
     Height = 23
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 5
+    OnChange = EditEncryptedChange
+    ExplicitWidth = 559
   end
   object btnDecrypt: TButton
     Left = 24
-    Top = 301
+    Top = 285
     Width = 75
     Height = 25
     Caption = 'Decrypt'
@@ -152,6 +178,7 @@ object FrmSymmetricEncryption: TFrmSymmetricEncryption
     ReadOnly = True
     TabOrder = 7
     TextHint = 'resulting clear text'
+    ExplicitWidth = 565
   end
   object btnSaveEncrypt: TButton
     Left = 445
@@ -183,6 +210,7 @@ object FrmSymmetricEncryption: TFrmSymmetricEncryption
     Enabled = False
     TabOrder = 10
     OnClick = btnSaveKeyClick
+    ExplicitLeft = 434
   end
   object btnLoadKey: TButton
     Left = 514
@@ -218,6 +246,8 @@ object FrmSymmetricEncryption: TFrmSymmetricEncryption
       '128'
       '192'
       '256')
+    ExplicitLeft = 514
+    ExplicitTop = 28
   end
   object EditIV: TEdit
     Left = 136
@@ -225,5 +255,6 @@ object FrmSymmetricEncryption: TFrmSymmetricEncryption
     Width = 297
     Height = 23
     TabOrder = 14
+    OnChange = EditIVChange
   end
 end
