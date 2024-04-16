@@ -57,8 +57,10 @@ type
     LabelKeySize: TLabel;
     lblChiffreLen: TLabel;
     Label1: TLabel;
-    Label2: TLabel;
-    Label3: TLabel;
+    lblResult: TLabel;
+    lblResultingClearText: TLabel;
+    btnSign: TButton;
+    btnVerify: TButton;
     procedure btnEncryptClick(Sender: TObject);
     procedure btnDecryptClick(Sender: TObject);
     procedure btnCreateKeysClick(Sender: TObject);
@@ -71,9 +73,12 @@ type
     procedure FormCreate(Sender: TObject);
     procedure EditKeyChange(Sender: TObject);
     procedure EditEncryptedChange(Sender: TObject);
+    procedure btnSignClick(Sender: TObject);
+    procedure btnVerifyClick(Sender: TObject);
   private
     fDataFolder: string;
     function SelectedAlgo: Core_IAsymmetricKeyAlgorithmProvider;
+    function SelectedAsymSignAlgo: Core_IAsymmetricKeyAlgorithmProvider;
     function SelectedKeyLength: integer;
     procedure InitWithNewKeys;
     procedure CheckButtons;
@@ -119,13 +124,27 @@ begin
   btnLoadKeys.Enabled := FileExists(fDataFolder + 'PrivateAndPublic.key');
   btnLoadPubKey.Enabled := FileExists(fDataFolder + 'Public.key');
   btnLoadEncrypt.Enabled := FileExists(fDataFolder + 'Encrypted.txt');
+  if cboAlgo.ItemIndex = 5 then
+  begin
+    cboKeySize.Items.CommaText := '256';
+    cboKeySize.ItemIndex := 0;
+  end
+  else if cboKeySize.Items.CommaText = '256' then
+  begin
+    cboKeySize.Items.CommaText := '2048,3072,4096';
+    cboKeySize.ItemIndex := 0;
+  end;
+  cboKeySize.Enabled := cboAlgo.ItemIndex < 5;
 end;
 
 procedure TfrmAsymmetricEncryption.InitWithNewKeys;
 begin
-  btnEncrypt.Enabled := true;
+  btnEncrypt.Enabled := (length(EditPublicKey.Text) > 0) and
+    (cboAlgo.ItemIndex < 5);
   btnLoadEncrypt.Enabled := true;
+  btnSign.Enabled := length(EditPrivateKey.Text) > 0;
   btnDecrypt.Enabled := false;
+  btnVerify.Enabled := false;
   btnSaveKeys.Enabled := true;
   EditEncrypted.Text := '';
   EditResult.Text := '';
@@ -292,8 +311,6 @@ begin
     EditPrivateKey.Color := clWindow;
     cboKeySize.ItemIndex :=
       cboKeySize.Items.IndexOf(PersonalKey.KeySize.ToString);
-    btnEncrypt.Enabled := true;
-    btnLoadEncrypt.Enabled := false;
     InitWithNewKeys;
   end;
 end;
@@ -322,6 +339,11 @@ begin
     lblChiffreLen.Caption := Format('Size %d bytes', [encrypted.Length]);
     btnSaveEncrypt.Enabled := true;
     btnDecrypt.Enabled := length(EditPrivateKey.Text) > 0;
+    btnVerify.Enabled := false;
+    lblResult.Caption := 'Chiffre';
+    EditResult.Text := '';
+    EditResult.visible := true;
+    lblResultingClearText.visible := true;
   except
     on e: exception do
       ShowError('Encryption failed: ' + e.Message);
@@ -333,6 +355,7 @@ var
   cleardata, encrypted: IBuffer;
   PersonalKey: Core_ICryptographicKey;
 begin
+  Assert(lblResult.Caption = 'Chiffre', 'Decryption needs chiffre');
   try
     PersonalKey := SelectedAlgo.ImportKeyPair(
       TWinRTCryptoHelpers.DecodeFromBase64(EditPrivateKey.Text),
@@ -353,6 +376,8 @@ begin
     else
       ShowWarning(
         'Failed: Resulting clear text different than starting clear text');
+    EditResult.visible := true;
+    lblResultingClearText.visible := true;
   except
     on e: exception do
       ShowError('Decryption failed: ' + e.Message);
@@ -370,16 +395,106 @@ begin
     2: Algo := TCore_AsymmetricAlgorithmNames.RsaOaepSha256;
     3: Algo := TCore_AsymmetricAlgorithmNames.RsaOaepSha384;
     4: Algo := TCore_AsymmetricAlgorithmNames.RsaOaepSha512;
+    5: Algo := TCore_AsymmetricAlgorithmNames.EcdsaP256Sha256;
     else
       raise Exception.Create('Unknown Core_AsymmetricAlgorithmNames');
   end;
   result := TCore_AsymmetricKeyAlgorithmProvider.OpenAlgorithm(Algo);
+  cboAlgo.Enabled := false;
 end;
 
 function TfrmAsymmetricEncryption.SelectedKeyLength: integer;
 begin
   result := StrToInt(cboKeySize.Text);
+  cboKeySize.Enabled := false;
 end;
+{$ENDREGION}
+
+{$REGION 'Asymmetric Signing/Verifing'}
+procedure TfrmAsymmetricEncryption.btnSignClick(Sender: TObject);
+var
+  cleardata, signature: IBuffer;
+  PrivateKey: Core_ICryptographicKey;
+begin
+  try
+    PrivateKey := SelectedAsymSignAlgo.ImportKeyPair(
+      TWinRTCryptoHelpers.DecodeFromBase64(EditPrivateKey.Text),
+      Core_CryptographicPrivateKeyBlobType.Pkcs8RawPrivateKeyInfo);
+    EditPublicKey.Color := clWindow;
+    EditPrivateKey.Color := clAqua;
+  except
+    on e: exception do
+      ShowError('Import private key failed: ' + e.Message);
+  end;
+  ClearResult;
+  clearData := TWinRTCryptoHelpers.StrToIBuffer(EditClear.Text);
+  try
+    signature := TCore_CryptographicEngine.Sign(PrivateKey, cleardata);
+    EditEncrypted.Text := TWinRTCryptoHelpers.EncodeAsBase64(signature);
+    lblChiffreLen.Caption := Format('Size %d bytes', [signature.Length]);
+    btnSaveEncrypt.Enabled := true;
+    btnDecrypt.Enabled := false;
+    btnVerify.Enabled := length(EditPublicKey.Text) > 0;
+    lblResult.Caption := 'Signature';
+    EditResult.visible := false;
+    lblResultingClearText.visible := false;
+  except
+    on e: exception do
+      ShowError('Encryption failed: ' + e.Message);
+  end;
+end;
+
+procedure TfrmAsymmetricEncryption.btnVerifyClick(Sender: TObject);
+var
+  cleardata, signature: IBuffer;
+  PublicKey: Core_ICryptographicKey;
+begin
+  Assert(lblResult.Caption = 'Signature', 'Verification needs signature');
+  try
+    PublicKey := SelectedAsymSignAlgo.ImportPublicKey(
+      TWinRTCryptoHelpers.DecodeFromBase64(EditPublicKey.Text));
+    EditPublicKey.Color := clAqua;
+    EditPrivateKey.Color := clWindow;
+  except
+    on e: exception do
+      ShowError('Import public key failed: ' + e.Message);
+  end;
+  clearData := TWinRTCryptoHelpers.StrToIBuffer(EditClear.Text);
+  signature := TWinRTCryptoHelpers.DecodeFromBase64(EditEncrypted.Text);
+  try
+    if TCore_CryptographicEngine.VerifySignature(PublicKey, clearData,
+         signature) then
+      ShowResult('Passed: Signature is valid')
+    else
+      ShowWarning('Failed: Signatur is invalid');
+  except
+    on e: exception do
+      ShowError('Verify signature failed: ' + e.Message);
+  end;
+  EditResult.visible := false;
+  lblResultingClearText.visible := false;
+end;
+
+function TfrmAsymmetricEncryption.SelectedAsymSignAlgo:
+  Core_IAsymmetricKeyAlgorithmProvider;
+var
+  Algo: HString;
+begin
+  case cboAlgo.ItemIndex of
+    0,
+    1: Algo := TCore_AsymmetricAlgorithmNames.RsaSignPkcs1Sha1;
+    2: Algo := TCore_AsymmetricAlgorithmNames.RsaSignPkcs1Sha256;
+    3: Algo := TCore_AsymmetricAlgorithmNames.RsaSignPkcs1Sha384;
+    4: Algo := TCore_AsymmetricAlgorithmNames.RsaSignPkcs1Sha512;
+    5: Algo := TCore_AsymmetricAlgorithmNames.EcdsaSha256;
+    6: Algo := TCore_AsymmetricAlgorithmNames.EcdsaP256Sha256;
+    else
+      raise Exception.Create('Unknown Core_AsymmetricAlgorithmNames');
+  end;
+  result := TCore_AsymmetricKeyAlgorithmProvider.OpenAlgorithm(Algo);
+  cboAlgo.Enabled := false;
+end;
+
 {$ENDREGION}
 
 {$REGION 'Encrypted Message Load/Save'}

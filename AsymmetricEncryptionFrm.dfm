@@ -25,7 +25,7 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
   object ShapeResult: TShape
     Left = 24
     Top = 416
-    Width = 559
+    Width = 557
     Height = 65
     Anchors = [akLeft, akTop, akRight]
     Shape = stRoundRect
@@ -34,7 +34,7 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
   object LabelResult: TLabel
     Left = 55
     Top = 440
-    Width = 504
+    Width = 502
     Height = 20
     Alignment = taCenter
     Anchors = [akLeft, akTop, akRight]
@@ -62,7 +62,7 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     Caption = 'Private Key'
   end
   object LabelKeySize: TLabel
-    Left = 431
+    Left = 429
     Top = 32
     Width = 71
     Height = 15
@@ -71,7 +71,7 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     ExplicitLeft = 437
   end
   object lblChiffreLen: TLabel
-    Left = 442
+    Left = 440
     Top = 293
     Width = 129
     Height = 15
@@ -87,14 +87,14 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     Height = 15
     Caption = 'Clear Text'
   end
-  object Label2: TLabel
+  object lblResult: TLabel
     Left = 24
     Top = 247
-    Width = 36
+    Width = 32
     Height = 15
-    Caption = 'Chiffre'
+    Caption = 'Result'
   end
-  object Label3: TLabel
+  object lblResultingClearText: TLabel
     Left = 24
     Top = 347
     Width = 103
@@ -104,11 +104,12 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
   object EditClear: TEdit
     Left = 24
     Top = 187
-    Width = 553
+    Width = 551
     Height = 23
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 0
     TextHint = 'Clear text'
+    ExplicitWidth = 549
   end
   object btnEncrypt: TButton
     Left = 24
@@ -123,11 +124,12 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
   object EditEncrypted: TEdit
     Left = 24
     Top = 268
-    Width = 553
+    Width = 551
     Height = 23
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 2
     OnChange = EditEncryptedChange
+    ExplicitWidth = 549
   end
   object btnDecrypt: TButton
     Left = 24
@@ -142,7 +144,7 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
   object cboAlgo: TComboBox
     Left = 112
     Top = 29
-    Width = 283
+    Width = 281
     Height = 23
     Style = csDropDownList
     Anchors = [akLeft, akTop, akRight]
@@ -155,19 +157,20 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
       'RsaOaepSha1'
       'RsaOaepSha256'
       'RsaOaepSha384'
-      'RsaOaepSha512')
-    ExplicitWidth = 277
+      'RsaOaepSha512'
+      'EcdsaP256Sha256')
+    ExplicitWidth = 279
   end
   object EditResult: TEdit
     Left = 24
     Top = 368
-    Width = 559
+    Width = 557
     Height = 23
     Anchors = [akLeft, akTop, akRight]
     ReadOnly = True
     TabOrder = 5
     TextHint = 'resulting clear text'
-    ExplicitWidth = 553
+    ExplicitWidth = 555
   end
   object btnCreateKeys: TButton
     Left = 24
@@ -181,25 +184,25 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
   object EditPublicKey: TEdit
     Left = 120
     Top = 112
-    Width = 457
+    Width = 455
     Height = 23
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 7
     OnChange = EditKeyChange
-    ExplicitWidth = 451
+    ExplicitWidth = 453
   end
   object EditPrivateKey: TEdit
     Left = 120
     Top = 139
-    Width = 457
+    Width = 455
     Height = 23
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 8
     OnChange = EditKeyChange
-    ExplicitWidth = 451
+    ExplicitWidth = 453
   end
   object btnSaveKeys: TButton
-    Left = 347
+    Left = 345
     Top = 72
     Width = 68
     Height = 25
@@ -208,10 +211,10 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     Enabled = False
     TabOrder = 9
     OnClick = btnSaveKeysClick
-    ExplicitLeft = 341
+    ExplicitLeft = 343
   end
   object btnSaveEncrypt: TButton
-    Left = 421
+    Left = 419
     Top = 216
     Width = 75
     Height = 25
@@ -220,10 +223,10 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     Enabled = False
     TabOrder = 10
     OnClick = btnSaveEncryptClick
-    ExplicitLeft = 415
+    ExplicitLeft = 417
   end
   object btnLoadEncrypt: TButton
-    Left = 502
+    Left = 500
     Top = 216
     Width = 75
     Height = 25
@@ -232,10 +235,10 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     Enabled = False
     TabOrder = 11
     OnClick = btnLoadEncryptClick
-    ExplicitLeft = 496
+    ExplicitLeft = 498
   end
   object btnLoadKeys: TButton
-    Left = 421
+    Left = 419
     Top = 72
     Width = 75
     Height = 25
@@ -243,10 +246,10 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     Caption = 'Load Keys'
     TabOrder = 12
     OnClick = btnLoadKeysClick
-    ExplicitLeft = 415
+    ExplicitLeft = 417
   end
   object btnLoadPubKey: TButton
-    Left = 502
+    Left = 500
     Top = 72
     Width = 75
     Height = 25
@@ -254,10 +257,10 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     Caption = 'Load Public'
     TabOrder = 13
     OnClick = btnLoadPubKeyClick
-    ExplicitLeft = 496
+    ExplicitLeft = 498
   end
   object cboKeySize: TComboBox
-    Left = 508
+    Left = 506
     Top = 29
     Width = 69
     Height = 23
@@ -270,6 +273,26 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
       '2048'
       '3072'
       '4096')
-    ExplicitLeft = 502
+    ExplicitLeft = 504
+  end
+  object btnSign: TButton
+    Left = 105
+    Top = 216
+    Width = 75
+    Height = 25
+    Caption = 'Sign'
+    Enabled = False
+    TabOrder = 15
+    OnClick = btnSignClick
+  end
+  object btnVerify: TButton
+    Left = 105
+    Top = 312
+    Width = 75
+    Height = 25
+    Caption = 'Verify'
+    Enabled = False
+    TabOrder = 16
+    OnClick = btnVerifyClick
   end
 end
