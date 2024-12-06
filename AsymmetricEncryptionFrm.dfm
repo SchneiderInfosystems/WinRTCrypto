@@ -214,28 +214,26 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     ExplicitLeft = 343
   end
   object btnSaveEncrypt: TButton
-    Left = 419
+    Left = 259
     Top = 216
-    Width = 75
+    Width = 74
     Height = 25
     Anchors = [akTop, akRight]
-    Caption = 'Save'
+    Caption = 'Save Chiffre'
     Enabled = False
     TabOrder = 10
     OnClick = btnSaveEncryptClick
-    ExplicitLeft = 417
   end
   object btnLoadEncrypt: TButton
-    Left = 500
+    Left = 339
     Top = 216
     Width = 75
     Height = 25
     Anchors = [akTop, akRight]
-    Caption = 'Load'
+    Caption = 'Load Chiffre'
     Enabled = False
     TabOrder = 11
     OnClick = btnLoadEncryptClick
-    ExplicitLeft = 498
   end
   object btnLoadKeys: TButton
     Left = 419
@@ -294,5 +292,27 @@ object frmAsymmetricEncryption: TfrmAsymmetricEncryption
     Enabled = False
     TabOrder = 16
     OnClick = btnVerifyClick
+  end
+  object btnSaveSign: TButton
+    Left = 420
+    Top = 216
+    Width = 74
+    Height = 25
+    Anchors = [akTop, akRight]
+    Caption = 'Save Sign'
+    Enabled = False
+    TabOrder = 17
+    OnClick = btnSaveSignClick
+  end
+  object btnLoadSign: TButton
+    Left = 500
+    Top = 216
+    Width = 75
+    Height = 25
+    Anchors = [akTop, akRight]
+    Caption = 'Load Sign'
+    Enabled = False
+    TabOrder = 18
+    OnClick = btnLoadSignClick
   end
 end

@@ -61,6 +61,8 @@ type
     lblResultingClearText: TLabel;
     btnSign: TButton;
     btnVerify: TButton;
+    btnSaveSign: TButton;
+    btnLoadSign: TButton;
     procedure btnEncryptClick(Sender: TObject);
     procedure btnDecryptClick(Sender: TObject);
     procedure btnCreateKeysClick(Sender: TObject);
@@ -75,6 +77,8 @@ type
     procedure EditEncryptedChange(Sender: TObject);
     procedure btnSignClick(Sender: TObject);
     procedure btnVerifyClick(Sender: TObject);
+    procedure btnSaveSignClick(Sender: TObject);
+    procedure btnLoadSignClick(Sender: TObject);
   private
     fDataFolder: string;
     function SelectedAlgo: Core_IAsymmetricKeyAlgorithmProvider;
@@ -124,6 +128,7 @@ begin
   btnLoadKeys.Enabled := FileExists(fDataFolder + 'PrivateAndPublic.key');
   btnLoadPubKey.Enabled := FileExists(fDataFolder + 'Public.key');
   btnLoadEncrypt.Enabled := FileExists(fDataFolder + 'Encrypted.txt');
+  btnLoadSign.Enabled := FileExists(fDataFolder + 'Signature.txt');
   if cboAlgo.ItemIndex = 5 then
   begin
     cboKeySize.Items.CommaText := '256';
@@ -272,9 +277,12 @@ begin
     EditPrivateKey.Color := clAqua;
     if NewKeys then
       InitWithNewKeys
-    else
+    else begin
       btnDecrypt.Enabled := (length(EditPrivateKey.Text) > 0) and
         (length(EditEncrypted.Text) > 0);
+      btnVerify.Enabled := (length(EditPublicKey.Text) > 0) and
+        (length(EditEncrypted.Text) > 0);
+    end;
     cboKeySize.ItemIndex :=
       cboKeySize.Items.IndexOf(PersonalKey.KeySize.ToString);
   end;
@@ -432,7 +440,7 @@ begin
     signature := TCore_CryptographicEngine.Sign(PrivateKey, cleardata);
     EditEncrypted.Text := TWinRTCryptoHelpers.EncodeAsBase64(signature);
     lblChiffreLen.Caption := Format('Size %d bytes', [signature.Length]);
-    btnSaveEncrypt.Enabled := true;
+    btnSaveSign.Enabled := true;
     btnDecrypt.Enabled := false;
     btnVerify.Enabled := length(EditPublicKey.Text) > 0;
     lblResult.Caption := 'Signature';
@@ -502,6 +510,7 @@ procedure TfrmAsymmetricEncryption.btnSaveEncryptClick(Sender: TObject);
 var
   sl: TStringList;
 begin
+  Assert(lblResult.Caption = 'Chiffre', 'Decryption needs chiffre');
   sl := TStringList.Create;
   try
     sl.Text := EditEncrypted.Text;
@@ -509,6 +518,7 @@ begin
   finally
     sl.Free;
   end;
+  btnSaveEncrypt.Enabled := false;
 end;
 
 procedure TfrmAsymmetricEncryption.btnLoadEncryptClick(Sender: TObject);
@@ -519,7 +529,43 @@ begin
   try
     sl.LoadFromFile(fDataFolder + 'Encrypted.txt');
     EditEncrypted.Text := sl.Text;
-    btnDecrypt.Enabled := true;
+    lblResult.Caption := 'Chiffre';
+    btnDecrypt.Enabled := length(EditPublicKey.Text) > 0;
+    btnVerify.Enabled := false;
+  finally
+    sl.Free;
+  end;
+end;
+
+procedure TfrmAsymmetricEncryption.btnSaveSignClick(Sender: TObject);
+var
+  sl: TStringList;
+begin
+  Assert(lblResult.Caption = 'Signature', 'Verification needs signature');
+  sl := TStringList.Create;
+  try
+    sl.Add(EditClear.Text);
+    sl.Add(EditEncrypted.Text);
+    sl.SaveToFile(fDataFolder + 'Signature.txt', TEncoding.UTF8);
+  finally
+    sl.Free;
+  end;
+  btnSaveSign.enabled := false;
+end;
+
+procedure TfrmAsymmetricEncryption.btnLoadSignClick(Sender: TObject);
+var
+  sl: TStringList;
+begin
+  sl := TStringList.Create;
+  try
+    sl.LoadFromFile(fDataFolder + 'Signature.txt', TEncoding.UTF8);
+    Assert(sl.Count = 2, 'Invalid signature file. Expected are 2 lines with clear text and signature.');
+    EditClear.Text := sl[0];
+    EditEncrypted.Text := sl[1];
+    lblResult.Caption := 'Signature';
+    btnDecrypt.Enabled := false;
+    btnVerify.Enabled := length(EditPublicKey.Text) > 0;
   finally
     sl.Free;
   end;
