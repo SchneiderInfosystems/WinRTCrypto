@@ -530,7 +530,7 @@ begin
     sl.LoadFromFile(fDataFolder + 'Encrypted.txt');
     EditEncrypted.Text := sl.Text;
     lblResult.Caption := 'Chiffre';
-    btnDecrypt.Enabled := length(EditPublicKey.Text) > 0;
+    btnDecrypt.Enabled := length(EditPrivateKey.Text) > 0;
     btnVerify.Enabled := false;
   finally
     sl.Free;
