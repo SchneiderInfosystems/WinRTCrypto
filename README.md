@@ -48,6 +48,5 @@ The sample projects are developed and prepared for Delphi 12.3 Athena.
 
 Delphi is a registered trademark of Embarcadero Technologies, Inc.
 
-Christoph Schneider<br>
-Schneider Infosystems Ltd<br> 
-November 2023
+Christoph Schneider, Schneider Infosystems AG, Switzerland
+[www.schneider-infosys.ch](https://www.schneider-infosys.ch)
