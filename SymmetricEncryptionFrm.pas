@@ -58,6 +58,7 @@ type
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
+    chbAutoRenew: TCheckBox;
     procedure btnCreateKeyClick(Sender: TObject);
     procedure btnEncryptClick(Sender: TObject);
     procedure btnDecryptClick(Sender: TObject);
@@ -118,6 +119,9 @@ begin
   EditClear.Text := Format(rsTS, [cboAlgo.Text, TimeToStr(Now)]);
   btnLoadKey.Enabled := FileExists(fDataFolder + 'Private.key');
   btnLoadEncrypt.Enabled := FileExists(fDataFolder + 'Encrypted.txt');
+  EditIV.visible := SelectAlgoRequiresIV;
+  LabelIV.visible := EditIV.visible;
+  chbAutoRenew.visible := EditIV.visible;
 end;
 
 procedure TFrmSymmetricEncryption.InitWithNewKeys;
@@ -255,12 +259,17 @@ begin
     Key := SelectedAlgo.CreateSymmetricKey(
       TWinRTCryptoHelpers.DecodeFromBase64(EditKey.Text));
     if SelectAlgoRequiresIV then
-      IV := TCryptographicBuffer.GenerateRandom(SelectedAlgo.BlockLength)
-    else
+    begin
+      if chbAutoRenew.Checked or (EditIV.Text = TWinRTCryptoHelpers.EncodeAsBase64(IV)) then
+      begin
+        IV := TCryptographicBuffer.GenerateRandom(SelectedAlgo.BlockLength);
+        EditIV.Text := TWinRTCryptoHelpers.EncodeAsBase64(IV);
+      end else
+        IV := TWinRTCryptoHelpers.DecodeFromBase64(EditIV.Text);
+    end else
       IV := nil;
     Encrypted := TCore_CryptographicEngine.Encrypt(Key, ClearData, IV);
     EditEncrypted.Text := TWinRTCryptoHelpers.EncodeAsBase64(Encrypted);
-    EditIV.Text := TWinRTCryptoHelpers.EncodeAsBase64(IV);
     EditKey.Color := clAqua;
     btnSaveEncrypt.Enabled := true;
     btnDecrypt.Enabled := true;
@@ -355,6 +364,7 @@ begin
     EditEncrypted.Text := sl[0];
     EditIV.Text := sl[1];
     btnDecrypt.Enabled := true;
+    chbAutoRenew.Checked := false;
   finally
     sl.Free;
   end;

@@ -455,6 +455,12 @@ var
   EncryptedSessionKey: IBuffer;
   Payload: IBuffer;
 begin
+  if String.IsNullOrEmpty(edtSenderPrivateKey.Text) then
+  begin
+    ShowMessage('Private key for signing is missing');
+    edtSenderPrivateKey.SetFocus;
+    exit;
+  end;
   lstHeader.Clear;
   SessionKey := TCryptographicBuffer.GenerateRandom(SelectSymKeySizeInBytes);
   EditSessionKey.Text := TWinRTCryptoHelpers.EncodeAsBase64(SessionKey);
@@ -555,6 +561,12 @@ var
   SessionKey: IBuffer;
   ClearText: IBuffer;
 begin
+  if String.IsNullOrEmpty(edtSenderPublicKey.Text) then
+  begin
+    ShowMessage('Sender''s public key for verification is missing');
+    edtSenderPublicKey.SetFocus;
+    exit;
+  end;
   ClearResult;
   EncryptedSessionKey :=
     SearchEncryptedSessionKeyByPublicKeyInHeaders(edtPersonalPublicKey.Text);

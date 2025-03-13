@@ -1,102 +1,146 @@
 object FrmSymmetricEncryption: TFrmSymmetricEncryption
   Left = 0
   Top = 0
+  Margins.Left = 5
+  Margins.Top = 5
+  Margins.Right = 5
+  Margins.Bottom = 5
   Caption = 'Symmetric Encryption'
-  ClientHeight = 442
-  ClientWidth = 628
+  ClientHeight = 774
+  ClientWidth = 1099
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -12
+  Font.Height = -21
   Font.Name = 'Segoe UI'
   Font.Style = []
   OnCreate = FormCreate
+  PixelsPerInch = 168
   DesignSize = (
-    628
-    442)
-  TextHeight = 15
+    1099
+    774)
+  TextHeight = 30
   object ShapeResult: TShape
-    Left = 24
-    Top = 369
-    Width = 571
-    Height = 65
+    Left = 42
+    Top = 646
+    Width = 999
+    Height = 114
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Anchors = [akLeft, akTop, akRight]
+    Pen.Width = 2
     Shape = stRoundRect
-    ExplicitWidth = 577
   end
   object LabelAlgo: TLabel
-    Left = 24
-    Top = 32
-    Width = 54
-    Height = 15
+    Left = 42
+    Top = 56
+    Width = 92
+    Height = 30
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Anchors = [akLeft, akTop, akRight]
     Caption = 'Algorithm'
   end
   object LabelKey: TLabel
-    Left = 24
-    Top = 115
-    Width = 19
-    Height = 15
+    Left = 42
+    Top = 201
+    Width = 33
+    Height = 27
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Anchors = [akLeft, akTop, akRight]
     AutoSize = False
     Caption = 'Key'
   end
   object LabelResult: TLabel
-    Left = 55
-    Top = 390
-    Width = 516
-    Height = 20
+    Left = 96
+    Top = 683
+    Width = 903
+    Height = 35
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Alignment = taCenter
     Anchors = [akLeft, akTop, akRight]
     AutoSize = False
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = 20
+    Font.Height = 35
     Font.Name = 'Segoe UI'
     Font.Style = []
     ParentFont = False
-    ExplicitWidth = 522
   end
   object LabelKeySize: TLabel
-    Left = 168
-    Top = 76
-    Width = 71
-    Height = 15
+    Left = 294
+    Top = 133
+    Width = 125
+    Height = 30
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Caption = 'Key size [bits]'
   end
   object LabelIV: TLabel
-    Left = 114
-    Top = 213
-    Width = 10
-    Height = 15
+    Left = 200
+    Top = 373
+    Width = 19
+    Height = 30
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Caption = 'IV'
   end
   object Label1: TLabel
-    Left = 24
-    Top = 139
-    Width = 51
-    Height = 15
+    Left = 42
+    Top = 243
+    Width = 90
+    Height = 30
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Caption = 'Clear Text'
   end
   object Label2: TLabel
-    Left = 24
-    Top = 239
-    Width = 36
-    Height = 15
+    Left = 42
+    Top = 418
+    Width = 62
+    Height = 30
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Caption = 'Chiffre'
   end
   object Label3: TLabel
-    Left = 24
-    Top = 319
-    Width = 103
-    Height = 15
+    Left = 42
+    Top = 558
+    Width = 181
+    Height = 30
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Caption = 'Resulting Clear Text'
   end
   object cboAlgo: TComboBox
-    Left = 112
-    Top = 29
-    Width = 347
-    Height = 23
+    Left = 196
+    Top = 51
+    Width = 607
+    Height = 38
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Style = csDropDownList
     Anchors = [akLeft, akTop, akRight]
     ItemIndex = 1
@@ -108,134 +152,179 @@ object FrmSymmetricEncryption: TFrmSymmetricEncryption
       'AesCbcPkcs7'
       'AesEcb'
       'AesEcbPkcs7')
-    ExplicitWidth = 341
   end
   object btnCreateKey: TButton
-    Left = 24
-    Top = 72
-    Width = 113
-    Height = 25
+    Left = 42
+    Top = 126
+    Width = 198
+    Height = 44
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Caption = 'Create Key'
     TabOrder = 1
     OnClick = btnCreateKeyClick
   end
   object EditKey: TEdit
-    Left = 114
-    Top = 112
-    Width = 475
-    Height = 23
+    Left = 200
+    Top = 196
+    Width = 831
+    Height = 38
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 2
     OnChange = EditKeyChange
-    ExplicitWidth = 469
   end
   object EditClear: TEdit
-    Left = 24
-    Top = 160
-    Width = 565
-    Height = 23
+    Left = 42
+    Top = 280
+    Width = 989
+    Height = 38
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 3
     TextHint = 'Clear text'
-    ExplicitWidth = 559
   end
   object btnEncrypt: TButton
-    Left = 24
-    Top = 208
-    Width = 75
-    Height = 25
+    Left = 42
+    Top = 364
+    Width = 131
+    Height = 44
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Caption = 'Encrypt'
     Enabled = False
     TabOrder = 4
     OnClick = btnEncryptClick
   end
   object EditEncrypted: TEdit
-    Left = 24
-    Top = 256
-    Width = 565
-    Height = 23
+    Left = 42
+    Top = 448
+    Width = 989
+    Height = 38
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 5
     OnChange = EditEncryptedChange
-    ExplicitWidth = 559
   end
   object btnDecrypt: TButton
-    Left = 24
-    Top = 285
-    Width = 75
-    Height = 25
+    Left = 42
+    Top = 499
+    Width = 131
+    Height = 44
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Caption = 'Decrypt'
     Enabled = False
     TabOrder = 6
     OnClick = btnDecryptClick
   end
   object EditResult: TEdit
-    Left = 24
-    Top = 340
-    Width = 571
-    Height = 23
+    Left = 42
+    Top = 595
+    Width = 999
+    Height = 38
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Anchors = [akLeft, akTop, akRight]
     ReadOnly = True
     TabOrder = 7
     TextHint = 'resulting clear text'
-    ExplicitWidth = 565
   end
   object btnSaveEncrypt: TButton
-    Left = 445
-    Top = 208
-    Width = 75
-    Height = 25
+    Left = 779
+    Top = 364
+    Width = 131
+    Height = 44
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Caption = 'Save'
     Enabled = False
     TabOrder = 8
     OnClick = btnSaveEncryptClick
   end
   object btnLoadEncrypt: TButton
-    Left = 526
-    Top = 208
-    Width = 75
-    Height = 25
+    Left = 921
+    Top = 364
+    Width = 131
+    Height = 44
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Caption = 'Load'
     Enabled = False
     TabOrder = 9
     OnClick = btnLoadEncryptClick
   end
   object btnSaveKey: TButton
-    Left = 440
-    Top = 72
-    Width = 68
-    Height = 25
+    Left = 770
+    Top = 126
+    Width = 119
+    Height = 44
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Anchors = [akTop, akRight]
     Caption = 'Save Key'
     Enabled = False
     TabOrder = 10
     OnClick = btnSaveKeyClick
-    ExplicitLeft = 434
   end
   object btnLoadKey: TButton
-    Left = 514
-    Top = 72
-    Width = 75
-    Height = 25
+    Left = 900
+    Top = 126
+    Width = 131
+    Height = 44
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Anchors = [akTop, akRight]
     Caption = 'Load Key'
     TabOrder = 11
     OnClick = btnLoadKeyClick
-    ExplicitLeft = 508
   end
   object EditKeySize: TEdit
-    Left = 256
-    Top = 73
-    Width = 105
-    Height = 23
+    Left = 448
+    Top = 128
+    Width = 184
+    Height = 38
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     ReadOnly = True
     TabOrder = 12
   end
   object cboKeySize: TComboBox
-    Left = 520
-    Top = 29
-    Width = 69
-    Height = 23
+    Left = 910
+    Top = 51
+    Width = 121
+    Height = 38
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Style = csDropDownList
     Anchors = [akRight]
     ItemIndex = 2
@@ -246,15 +335,31 @@ object FrmSymmetricEncryption: TFrmSymmetricEncryption
       '128'
       '192'
       '256')
-    ExplicitLeft = 514
-    ExplicitTop = 28
   end
   object EditIV: TEdit
-    Left = 136
-    Top = 209
-    Width = 297
-    Height = 23
+    Left = 238
+    Top = 366
+    Width = 355
+    Height = 38
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     TabOrder = 14
     OnChange = EditIVChange
+  end
+  object chbAutoRenew: TCheckBox
+    Left = 603
+    Top = 366
+    Width = 160
+    Height = 38
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
+    Caption = 'Auto renew'
+    Checked = True
+    State = cbChecked
+    TabOrder = 15
   end
 end

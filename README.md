@@ -44,7 +44,7 @@ When decrypting, this signature is used to check whether the message was created
 
 ![MultiRecipientHybridEncryptionSign App in Action](MultiRecipientHybridEncryptionWithSignApp.png)
 
-The sample projects are developed and prepared for Delphi 12.0 Athena.
+The sample projects are developed and prepared for Delphi 12.3 Athena.
 
 Delphi is a registered trademark of Embarcadero Technologies, Inc.
 
